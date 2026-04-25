@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Chatty — Real-time Messaging</title>
+    <title>NEXUS — Secure Messaging</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
     <!-- Custom Tailwind Config Override -->
     <script>
         tailwind.config = {
@@ -36,11 +38,24 @@
                         },
                     },
                     colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        accent: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
                         },
                     },
                 },
@@ -48,20 +63,19 @@
         }
     </script>
     <style>
-        /* Custom scrollbar for modern browsers */
+        /* Custom scrollbar */
         .messages-container::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         .messages-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+            background: transparent;
         }
         .messages-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
+            background: #475569;
+            border-radius: 2px;
         }
         .messages-container::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #64748b;
         }
         /* Typing animation dots */
         .typing-dot {
@@ -75,12 +89,25 @@
             0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
             30% { transform: translateY(-6px); opacity: 1; }
         }
-        /* Message bubble hover effect */
-        .message-bubble {
-            transition: all 0.2s ease;
+        /* Cyberpunk border effects */
+        .cyber-border {
+            border: 1px solid #334155;
+            position: relative;
         }
-        .message-bubble:hover {
-            transform: scale(1.02);
+        .cyber-border::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, #0ea5e9, transparent, #0ea5e9);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .cyber-border:hover::before {
+            opacity: 0.3;
         }
         /* Sidebar slide animation for mobile */
         .sidebar-mobile {
@@ -91,52 +118,51 @@
         }
         /* Glass morphism effect for header */
         .glass-header {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-        }
-        .dark .glass-header {
-            background: rgba(15, 23, 42, 0.9);
-            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+            border-bottom: 1px solid #334155;
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+<body class="bg-slate-950 text-slate-100 transition-colors duration-300">
 
     <!-- Main App Container -->
     <div class="flex h-screen overflow-hidden">
         
         <!-- ======================== SIDEBAR ======================== -->
-        <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 shadow-xl md:shadow-none">
+        <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 border-r border-slate-800 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300">
             <div class="flex flex-col h-full">
                 <!-- Sidebar Header -->
-                <div class="p-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary-50 to-white dark:from-gray-800 dark:to-gray-800">
+                <div class="p-6 border-b border-slate-800 bg-slate-950">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <i class="fas fa-comment-dots text-2xl text-primary-600 dark:text-primary-400"></i>
-                            <h1 class="text-xl font-bold text-gray-800 dark:text-white">Chatty</h1>
+                            <div class="w-8 h-8 bg-accent-600 rounded flex items-center justify-center">
+                                <i class="fas fa-network-wired text-sm text-white"></i>
+                            </div>
+                            <h1 class="text-lg font-mono font-bold text-slate-100">NEXUS</h1>
                         </div>
-                        <button id="closeSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400">
-                            <i class="fas fa-times text-xl"></i>
+                        <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-200">
+                            <i class="fas fa-times text-lg"></i>
                         </button>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Real-time conversations</p>
+                    <p class="text-xs text-slate-500 mt-2 font-mono">SECURE COMMUNICATION</p>
                 </div>
 
                 <!-- User Profile Summary -->
-                <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/50">
                     <div class="flex items-center space-x-3">
                         <div class="relative">
-                            <img src="https://ui-avatars.com/api/?background=3b82f6&color=fff&name=Guest+User" alt="Avatar" class="w-12 h-12 rounded-full object-cover ring-2 ring-primary-500">
-                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                            <div class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 font-mono text-sm border border-slate-600">
+                                G.U.
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-accent-500 border-2 border-slate-900 rounded-full"></span>
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold text-gray-800 dark:text-white">Guest User</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Online</p>
+                            <h3 class="font-mono text-sm font-semibold text-slate-200">Guest User</h3>
+                            <p class="text-xs text-slate-500">ACTIVE</p>
                         </div>
-                        <button id="themeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                            <i class="fas fa-moon dark:hidden"></i>
-                            <i class="fas fa-sun hidden dark:inline"></i>
+                        <button id="themeToggle" class="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition border border-slate-700">
+                            <i class="fas fa-cog text-sm"></i>
                         </button>
                     </div>
                 </div>
@@ -144,19 +170,19 @@
                 <!-- Channels List -->
                 <div class="flex-1 overflow-y-auto p-4">
                     <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Channels</h4>
-                        <button id="addChannelBtn" class="text-primary-600 hover:text-primary-700 dark:text-primary-400">
-                            <i class="fas fa-plus text-sm"></i>
+                        <h4 class="text-xs font-mono font-semibold text-slate-500 uppercase tracking-wider">Channels</h4>
+                        <button id="addChannelBtn" class="text-accent-500 hover:text-accent-400">
+                            <i class="fas fa-plus text-xs"></i>
                         </button>
                     </div>
-                    <div id="channelsList" class="space-y-1.5">
+                    <div id="channelsList" class="space-y-1">
                         <!-- Dynamic channels will be injected here -->
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-xs text-center text-gray-500 dark:text-gray-400">
-                    <i class="fas fa-shield-alt"></i> Secure & Private
+                <div class="p-4 border-t border-slate-800 text-xs text-center text-slate-600 font-mono">
+                    <i class="fas fa-shield-alt"></i> ENCRYPTED & PRIVATE
                 </div>
             </div>
         </aside>
@@ -165,414 +191,95 @@
         <main class="flex-1 flex flex-col h-full w-full overflow-hidden">
             
             <!-- Chat Header -->
-            <header class="glass-header px-4 py-3 flex items-center justify-between shadow-sm">
-                <div class="flex items-center space-x-3">
-                    <button id="openSidebarBtn" class="md:hidden text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                        <i class="fas fa-bars text-xl"></i>
+            <header class="glass-header px-6 py-4 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center space-x-4">
+                    <button id="openSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-200">
+                        <i class="fas fa-bars text-lg"></i>
                     </button>
                     <div>
-                        <h2 id="channelName" class="font-semibold text-gray-800 dark:text-white text-lg">General</h2>
-                        <p id="channelStatus" class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                            <span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
-                            <span>12 members online</span>
+                        <h2 id="channelName" class="font-mono font-semibold text-slate-100 text-lg">#general</h2>
+                        <p id="channelStatus" class="text-xs text-slate-500 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-accent-500 rounded-full inline-block"></span>
+                            <span>12 NODES ACTIVE</span>
                         </p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition relative group">
-                        <i class="fas fa-search text-gray-600 dark:text-gray-300"></i>
-                        <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">Search</span>
+                    <button class="p-2 rounded-lg hover:bg-slate-800 transition border border-slate-700">
+                        <i class="fas fa-search text-slate-400 text-sm"></i>
                     </button>
-                    <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition relative group">
-                        <i class="fas fa-ellipsis-v text-gray-600 dark:text-gray-300"></i>
-                        <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">Settings</span>
+                    <button class="p-2 rounded-lg hover:bg-slate-800 transition border border-slate-700">
+                        <i class="fas fa-cog text-slate-400 text-sm"></i>
                     </button>
                 </div>
             </header>
 
             <!-- Messages Container -->
-            <div id="messagesContainer" class="messages-container flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
+            <div id="messagesContainer" class="messages-container flex-1 overflow-y-auto p-6 space-y-4 bg-slate-950">
                 <!-- Welcome Message -->
-                <div class="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-                    <div class="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-comments text-3xl text-primary-600 dark:text-primary-400"></i>
+                <div class="flex flex-col items-center justify-center h-full text-center">
+                    <div class="w-16 h-16 bg-slate-800 rounded-lg flex items-center justify-center mb-6 border border-slate-700">
+                        <i class="fas fa-network-wired text-2xl text-accent-500"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300">Welcome to Chatty</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md">Start messaging with friends and colleagues in real-time.</p>
+                    <h3 class="text-xl font-mono font-semibold text-slate-300">NEXUS TERMINAL</h3>
+                    <p class="text-slate-500 mt-3 max-w-md font-mono text-sm">Secure channel established. Awaiting transmission...</p>
                 </div>
             </div>
 
             <!-- Typing Indicator -->
-            <div id="typingIndicator" class="px-4 py-1 hidden">
-                <div class="flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <div id="typingIndicator" class="px-6 py-2 hidden">
+                <div class="flex items-center space-x-2 text-xs text-slate-500 font-mono">
                     <div class="flex space-x-1">
-                        <span class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full inline-block"></span>
-                        <span class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full inline-block"></span>
-                        <span class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full inline-block"></span>
+                        <span class="typing-dot w-1.5 h-1.5 bg-accent-500 rounded-full inline-block"></span>
+                        <span class="typing-dot w-1.5 h-1.5 bg-accent-500 rounded-full inline-block"></span>
+                        <span class="typing-dot w-1.5 h-1.5 bg-accent-500 rounded-full inline-block"></span>
                     </div>
-                    <span>Someone is typing...</span>
+                    <span>TRANSMISSION IN PROGRESS...</span>
                 </div>
             </div>
 
             <!-- Message Input Area -->
-            <div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+            <div class="border-t border-slate-800 bg-slate-900 p-4">
                 <div class="flex items-end space-x-3">
-                    <button id="attachBtn" class="text-gray-500 hover:text-primary-600 dark:text-gray-400 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i class="fas fa-paperclip text-lg"></i>
+                    <button id="attachBtn" class="text-slate-500 hover:text-accent-400 transition-colors p-2 rounded-lg hover:bg-slate-800 border border-slate-700">
+                        <i class="fas fa-paperclip text-sm"></i>
                     </button>
                     <div class="flex-1 relative">
-                        <textarea id="messageInput" rows="1" placeholder="Type your message..." class="w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-gray-700 border-0 rounded-2xl resize-none focus:ring-2 focus:ring-primary-500 focus:outline-none text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"></textarea>
-                        <button id="sendBtn" class="absolute right-2 bottom-2 p-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-paper-plane text-sm"></i>
+                        <textarea id="messageInput" rows="1" placeholder="TRANSMIT MESSAGE..." class="w-full px-4 py-3 pr-12 bg-slate-800 border border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-slate-100 placeholder-slate-500 transition-all font-mono text-sm"></textarea>
+                        <button id="sendBtn" class="absolute right-2 bottom-2 p-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-paper-plane text-xs"></i>
                         </button>
                     </div>
-                    <button id="emojiBtn" class="text-gray-500 hover:text-primary-600 dark:text-gray-400 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i class="far fa-smile-wink text-xl"></i>
+                    <button id="emojiBtn" class="text-slate-500 hover:text-accent-400 transition-colors p-2 rounded-lg hover:bg-slate-800 border border-slate-700">
+                        <i class="far fa-smile text-sm"></i>
                     </button>
                 </div>
                 <div class="flex justify-between items-center mt-2 px-1">
-                    <span class="text-xs text-gray-400">Press Enter to send, Shift+Enter for new line</span>
-                    <span id="charCounter" class="text-xs text-gray-400">0/500</span>
+                    <span class="text-xs text-slate-600 font-mono">ENTER TO TRANSMIT</span>
+                    <span id="charCounter" class="text-xs text-slate-600 font-mono">0/500</span>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- Add Channel Modal -->
-    <div id="channelModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4 animate-fade-in">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl transform animate-slide-up">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Create New Channel</h3>
-                <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <i class="fas fa-times text-xl"></i>
+    <div id="channelModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-lg max-w-md w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-mono font-bold text-slate-100">NEW CHANNEL</h3>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-slate-200">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <input type="text" id="channelNameInput" placeholder="Channel name (e.g., general, random)" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <input type="text" id="channelNameInput" placeholder="channel-name" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 font-mono text-sm">
             <div class="flex justify-end space-x-3 mt-6">
-                <button id="cancelModalBtn" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Cancel</button>
-                <button id="createChannelBtn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition">Create Channel</button>
+                <button id="cancelModalBtn" class="px-4 py-2 text-slate-400 hover:bg-slate-800 rounded-lg transition font-mono text-sm">CANCEL</button>
+                <button id="createChannelBtn" class="px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition font-mono text-sm">CREATE</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // ======================== APPLICATION STATE ========================
-        let currentChannel = { id: 'general', name: 'General' };
-        let messages = [];
-        let isTyping = false;
-        let typingTimeout = null;
-        
-        // Mock data for demonstration (will be replaced with Supabase)
-        let channels = [
-            { id: 'general', name: 'General' },
-            { id: 'random', name: 'Random' },
-            { id: 'tech', name: 'Tech Talk' }
-        ];
-        
-        let allMessages = {
-            general: [
-                { id: '1', text: 'Welcome to #general! 👋', sender: 'system', timestamp: new Date(Date.now() - 3600000), type: 'system' },
-                { id: '2', text: 'Hey everyone! This is a demo chat.', sender: 'Alice', timestamp: new Date(Date.now() - 1800000), avatar: 'A' },
-                { id: '3', text: 'Beautiful UI! Love the animations 🎨', sender: 'Bob', timestamp: new Date(Date.now() - 900000), avatar: 'B' },
-            ],
-            random: [
-                { id: '1', text: 'What\'s everyone up to?', sender: 'Charlie', timestamp: new Date(Date.now() - 7200000), avatar: 'C' },
-                { id: '2', text: 'Just building this awesome chat app!', sender: 'You', timestamp: new Date(Date.now() - 3600000), avatar: 'Y', isOwn: true },
-            ],
-            tech: [
-                { id: '1', text: 'Has anyone tried the new React 19?', sender: 'Diana', timestamp: new Date(Date.now() - 86400000), avatar: 'D' },
-                { id: '2', text: 'I\'m learning Tailwind CSS, it\'s amazing!', sender: 'Eve', timestamp: new Date(Date.now() - 43200000), avatar: 'E' },
-            ]
-        };
-        
-        // ======================== DOM ELEMENTS ========================
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const channelNameSpan = document.getElementById('channelName');
-        const openSidebarBtn = document.getElementById('openSidebarBtn');
-        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-        const body = document.body;
-        const themeToggle = document.getElementById('themeToggle');
-        const addChannelBtn = document.getElementById('addChannelBtn');
-        const channelModal = document.getElementById('channelModal');
-        const channelNameInput = document.getElementById('channelNameInput');
-        const createChannelBtn = document.getElementById('createChannelBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const cancelModalBtn = document.getElementById('cancelModalBtn');
-        const charCounter = document.getElementById('charCounter');
-        const attachBtn = document.getElementById('attachBtn');
-        const emojiBtn = document.getElementById('emojiBtn');
-        
-        // ======================== HELPER FUNCTIONS ========================
-        function formatTime(date) {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-        
-        function renderMessages() {
-            const channelMessages = allMessages[currentChannel.id] || [];
-            if (channelMessages.length === 0) {
-                messagesContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-                        <div class="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-4">
-                            <i class="fas fa-comment-dots text-3xl text-primary-600 dark:text-primary-400"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">No messages yet</h3>
-                        <p class="text-gray-500 dark:text-gray-400 mt-2">Be the first to send a message!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            messagesContainer.innerHTML = channelMessages.map(msg => {
-                if (msg.type === 'system') {
-                    return `
-                        <div class="flex justify-center animate-fade-in">
-                            <div class="bg-gray-200 dark:bg-gray-700 rounded-full px-4 py-1.5">
-                                <span class="text-xs text-gray-600 dark:text-gray-300">${msg.text}</span>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                const isOwn = msg.sender === 'You' || msg.isOwn;
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in message-bubble ${isOwn ? 'flex-row-reverse space-x-reverse' : ''}">
-                        ${!isOwn ? `
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0">
-                                ${msg.avatar || msg.sender.charAt(0)}
-                            </div>
-                        ` : ''}
-                        <div class="flex flex-col ${isOwn ? 'items-end' : ''} max-w-[70%]">
-                            ${!isOwn ? `<span class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 ml-1">${msg.sender}</span>` : ''}
-                            <div class="${isOwn ? 'bg-primary-600 text-white rounded-2xl rounded-tr-none' : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-2xl rounded-tl-none'} px-4 py-2.5 shadow-sm">
-                                <p class="text-sm break-words">${escapeHtml(msg.text)}</p>
-                            </div>
-                            <span class="text-xs text-gray-400 mt-1 ml-1">${formatTime(msg.timestamp)}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Auto-scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        function renderChannels() {
-            const channelsList = document.getElementById('channelsList');
-            channelsList.innerHTML = channels.map(ch => `
-                <button class="channel-item w-full text-left px-3 py-2.5 rounded-lg transition-all ${currentChannel.id === ch.id ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}" data-channel-id="${ch.id}">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-hashtag ${currentChannel.id === ch.id ? 'text-primary-500' : 'text-gray-400'} text-sm"></i>
-                        <span>${escapeHtml(ch.name)}</span>
-                    </div>
-                </button>
-            `).join('');
-            
-            // Add event listeners to channel buttons
-            document.querySelectorAll('.channel-item').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const channelId = btn.dataset.channelId;
-                    const channel = channels.find(c => c.id === channelId);
-                    if (channel) {
-                        currentChannel = channel;
-                        channelNameSpan.textContent = `#${channel.name}`;
-                        renderChannels();
-                        renderMessages();
-                        // Close sidebar on mobile after selection
-                        if (window.innerWidth < 768) {
-                            body.classList.remove('sidebar-open');
-                        }
-                    }
-                });
-            });
-        }
-        
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            if (!text) return;
-            
-            const newMessage = {
-                id: Date.now().toString(),
-                text: text,
-                sender: 'You',
-                timestamp: new Date(),
-                isOwn: true,
-                avatar: 'Y'
-            };
-            
-            if (!allMessages[currentChannel.id]) {
-                allMessages[currentChannel.id] = [];
-            }
-            allMessages[currentChannel.id].push(newMessage);
-            renderMessages();
-            messageInput.value = '';
-            updateCharCount();
-            stopTyping();
-        }
-        
-        function startTyping() {
-            if (!isTyping) {
-                isTyping = true;
-                typingIndicator.classList.remove('hidden');
-            }
-            if (typingTimeout) clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => stopTyping(), 1500);
-        }
-        
-        function stopTyping() {
-            isTyping = false;
-            typingIndicator.classList.add('hidden');
-            if (typingTimeout) clearTimeout(typingTimeout);
-        }
-        
-        function updateCharCount() {
-            const length = messageInput.value.length;
-            charCounter.textContent = `${length}/500`;
-            if (length >= 450) {
-                charCounter.classList.add('text-orange-500');
-            } else {
-                charCounter.classList.remove('text-orange-500');
-            }
-        }
-        
-        function createChannel() {
-            const name = channelNameInput.value.trim();
-            if (!name) return;
-            
-            const id = name.toLowerCase().replace(/\s+/g, '-');
-            if (!channels.find(c => c.id === id)) {
-                channels.push({ id, name });
-                allMessages[id] = [];
-                renderChannels();
-                currentChannel = { id, name };
-                channelNameSpan.textContent = `#${name}`;
-                renderMessages();
-                channelModal.classList.add('hidden');
-                channelNameInput.value = '';
-            } else {
-                alert('Channel already exists!');
-            }
-        }
-        
-        // ======================== EVENT LISTENERS ========================
-        sendBtn.addEventListener('click', sendMessage);
-        
-        messageInput.addEventListener('input', () => {
-            updateCharCount();
-            if (messageInput.value.trim()) {
-                startTyping();
-            } else {
-                stopTyping();
-            }
-        });
-        
-        messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        openSidebarBtn.addEventListener('click', () => {
-            body.classList.add('sidebar-open');
-        });
-        
-        closeSidebarBtn.addEventListener('click', () => {
-            body.classList.remove('sidebar-open');
-        });
-        
-        // Click outside sidebar on mobile to close
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && body.classList.contains('sidebar-open')) {
-                const sidebar = document.querySelector('.sidebar-mobile');
-                if (sidebar && !sidebar.contains(e.target) && !openSidebarBtn.contains(e.target)) {
-                    body.classList.remove('sidebar-open');
-                }
-            }
-        });
-        
-        // Theme Toggle
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-        
-        themeToggle.addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-        });
-        
-        // Modal handling
-        addChannelBtn.addEventListener('click', () => {
-            channelModal.classList.remove('hidden');
-            channelModal.style.display = 'flex';
-        });
-        
-        function closeModal() {
-            channelModal.classList.add('hidden');
-            channelModal.style.display = 'none';
-            channelNameInput.value = '';
-        }
-        
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelModalBtn.addEventListener('click', closeModal);
-        createChannelBtn.addEventListener('click', createChannel);
-        channelModal.addEventListener('click', (e) => {
-            if (e.target === channelModal) closeModal();
-        });
-        
-        // Attach button (demo)
-        attachBtn.addEventListener('click', () => {
-            alert('File attachment will be available when connected to Supabase! 📎');
-        });
-        
-        // Emoji button (demo)
-        emojiBtn.addEventListener('click', () => {
-            alert('Emoji picker coming soon! 😊');
-        });
-        
-        // Initialize
-        renderChannels();
-        renderMessages();
-        updateCharCount();
-        
-        // Auto-resize textarea
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-        
-        // Simulate incoming messages for demo
-        setInterval(() => {
-            if (Math.random() > 0.7 && currentChannel.id === 'general') {
-                const demoMessages = [
-                    'Hey! Love this chat interface 💬',
-                    'The animations are so smooth!',
-                    'Can\'t wait to connect this to Supabase 🚀',
-                    'Great work on the UI!'
-                ];
-                const randomMsg = demoMessages[Math.floor(Math.random() * demoMessages.length)];
-                const newMsg = {
-                    id: Date.now().toString(),
-                    text: randomMsg,
-                    sender: 'DemoUser',
-                    timestamp: new Date(),
-                    avatar: 'D'
-                };
-                if (!allMessages[currentChannel.id]) allMessages[currentChannel.id] = [];
-                allMessages[currentChannel.id].push(newMsg);
-                renderMessages();
-            }
-        }, 15000);
-    </script>
+    <!-- Custom JavaScript -->
+    <script src="app.js"></script>
 </body>
 </html>
