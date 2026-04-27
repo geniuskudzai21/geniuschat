@@ -54,23 +54,23 @@ function renderMessages() {
     const channelMessages = allMessages[currentChannel.id] || [];
     if (channelMessages.length === 0) {
         messagesContainer.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-full text-center">
-                <div class="w-16 h-16 bg-slate-800 rounded-lg flex items-center justify-center mb-6 border border-slate-700">
-                    <i class="fas fa-network-wired text-2xl text-accent-500"></i>
+            <div class="flex flex-col items-center justify-center h-full text-center relative z-10">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue/20 to-blue/10 rounded-3xl flex items-center justify-center mb-8 border-2 border-blue/30 shadow-2xl shadow-blue/20 backdrop-blur">
+                    <i class="fas fa-network-wired text-3xl text-blue"></i>
                 </div>
-                <h3 class="text-lg font-mono font-semibold text-slate-300">NO TRANSMISSIONS</h3>
-                <p class="text-slate-500 mt-2 font-mono text-sm">Initiate first transmission...</p>
+                <h3 class="text-2xl font-bold text-white mb-4 tracking-wider">NO TRANSMISSIONS</h3>
+                <p class="text-silver-dark text-lg font-medium leading-relaxed">Initiate first transmission...</p>
             </div>
         `;
         return;
     }
     
-    messagesContainer.innerHTML = channelMessages.map(msg => {
+    messagesContainer.innerHTML = channelMessages.map((msg, index) => {
         if (msg.type === 'system') {
             return `
-                <div class="flex justify-center">
-                    <div class="bg-slate-800 rounded-lg px-4 py-2 border border-slate-700">
-                        <span class="text-xs text-slate-400 font-mono">${msg.text}</span>
+                <div class="flex justify-center scroll-fade-in" style="animation-delay: ${index * 0.1}s">
+                    <div class="bg-gradient-to-r from-blue/10 to-blue/5 rounded-2xl px-6 py-3 border border-blue/20 backdrop-blur">
+                        <span class="text-sm text-blue font-mono font-medium">${msg.text}</span>
                     </div>
                 </div>
             `;
@@ -78,18 +78,18 @@ function renderMessages() {
         
         const isOwn = msg.sender === 'You' || msg.isOwn;
         return `
-            <div class="flex items-start space-x-3 ${isOwn ? 'flex-row-reverse space-x-reverse' : ''}">
+            <div class="flex items-start space-x-4 ${isOwn ? 'flex-row-reverse space-x-reverse' : ''} relative z-10 scroll-fade-in" style="animation-delay: ${index * 0.1}s">
                 ${!isOwn ? `
-                    <div class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-slate-300 font-mono text-xs border border-slate-600 flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-silver to-silver-dark rounded-2xl flex items-center justify-center text-darkgrey font-bold text-sm border-2 border-blue/20 flex-shrink-0 shadow-lg">
                         ${msg.avatar || msg.sender.charAt(0)}
                     </div>
                 ` : ''}
                 <div class="flex flex-col ${isOwn ? 'items-end' : ''} max-w-[70%]">
-                    ${!isOwn ? `<span class="text-xs font-mono font-semibold text-slate-400 mb-1 ml-1">${msg.sender}</span>` : ''}
-                    <div class="${isOwn ? 'bg-accent-600 text-white rounded-lg rounded-tr-none' : 'bg-slate-800 text-slate-100 rounded-lg rounded-tl-none border border-slate-700'} px-4 py-2.5">
-                        <p class="text-sm break-words font-mono">${escapeHtml(msg.text)}</p>
+                    ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-2 ml-2">${msg.sender}</span>` : ''}
+                    <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-5 py-3">
+                        <p class="text-sm break-words font-mono font-medium leading-relaxed">${escapeHtml(msg.text)}</p>
                     </div>
-                    <span class="text-xs text-slate-600 mt-1 ml-1 font-mono">${formatTime(msg.timestamp)}</span>
+                    <span class="text-xs text-silver-dark mt-2 ml-2 font-mono">${formatTime(msg.timestamp)}</span>
                 </div>
             </div>
         `;
@@ -109,14 +109,14 @@ function renderChannels() {
     const channelsList = document.getElementById('channelsList');
     channelsList.innerHTML = channels.map(ch => `
         <div class="channel-wrapper flex items-center group">
-            <button class="channel-item flex-1 text-left px-3 py-2.5 rounded-lg transition-all ${currentChannel.id === ch.id ? 'bg-accent-600/20 text-accent-400 font-medium border border-accent-600/30' : 'hover:bg-slate-800 text-slate-300 border border-transparent'}" data-channel-id="${ch.id}">
+            <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${currentChannel.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-hashtag ${currentChannel.id === ch.id ? 'text-accent-400' : 'text-slate-600'} text-sm"></i>
-                    <span class="font-mono text-sm">${escapeHtml(ch.name)}</span>
+                    <i class="fas fa-hashtag ${currentChannel.id === ch.id ? 'text-blue' : 'text-silver-dark'} text-sm"></i>
+                    <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
                 </div>
             </button>
             ${ch.id !== 'general' ? `
-                <button class="delete-channel-btn p-2 text-slate-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200" data-channel-id="${ch.id}" title="Delete channel">
+                <button class="delete-channel-btn p-2 text-silver-dark hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110" data-channel-id="${ch.id}" title="Delete channel">
                     <i class="fas fa-trash text-xs"></i>
                 </button>
             ` : ''}
@@ -193,9 +193,9 @@ function updateCharCount() {
     const length = messageInput.value.length;
     charCounter.textContent = `${length}/500`;
     if (length >= 450) {
-        charCounter.classList.add('text-accent-500');
+        charCounter.classList.add('text-blue');
     } else {
-        charCounter.classList.remove('text-accent-500');
+        charCounter.classList.remove('text-blue');
     }
 }
 

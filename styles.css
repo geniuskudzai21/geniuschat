@@ -1,61 +1,100 @@
-/* Custom scrollbar */
+ body{
+    color: rgb(51, 255, 0);
+}
+
+/* Modern Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235));
+    border-radius: 4px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, rgb(37, 99, 235), rgb(29, 78, 216));
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: scale(1.1);
+}
+
+::-webkit-scrollbar-corner {
+    background: rgba(31, 41, 55, 0.5);
+}
+
+/* Firefox scrollbar styles */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(59, 130, 246) rgba(31, 41, 55, 0.5);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for specific elements */
 .messages-container::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
 }
+
 .messages-container::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
 }
+
 .messages-container::-webkit-scrollbar-thumb {
-    background: #475569;
-    border-radius: 2px;
-}
-.messages-container::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
+    background: linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235));
+    border-radius: 3px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
-/* Typing animation dots */
-.typing-dot {
-    animation: typingPulse 1.4s infinite;
-    animation-fill-mode: both;
-}
-.typing-dot:nth-child(1) { animation-delay: 0s; }
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingPulse {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-6px); opacity: 1; }
+.channels-section::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* Cyberpunk border effects */
-.cyber-border {
-    border: 1px solid #334155;
-    position: relative;
-}
-.cyber-border::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
-    bottom: -1px;
-    background: linear-gradient(45deg, #0ea5e9, transparent, #0ea5e9);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-.cyber-border:hover::before {
-    opacity: 0.3;
+.channels-section::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.3);
+    border-radius: 3px;
 }
 
-/* Sidebar slide animation for mobile */
-.sidebar-mobile {
-    transition: transform 0.3s ease-in-out;
+.channels-section::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235));
+    border-radius: 3px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
 }
+
+/* Scroll animations */
+@keyframes fadeInScroll {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scroll-fade-in {
+    animation: fadeInScroll 0.6s ease-out;
+}
+
+/* Sidebar toggling styles */
 body.sidebar-open .sidebar-mobile {
     transform: translateX(0);
 }
 
-/* Glass morphism effect for header */
-.glass-header {
-    backdrop-filter: blur(10px);
+@media (max-width: 767px) {
+    .sidebar-mobile {
+        transform: translateX(-100%);
+    }
 }
