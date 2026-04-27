@@ -57,7 +57,7 @@ body.sidebar-open .sidebar-mobile {
 
 /* Glass morphism effect for header */
 .glass-header {
-    background: rgba(15, 23, 42, 0.95);
+    background: oklch(13% 0.028 261.692);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #334155;
 }

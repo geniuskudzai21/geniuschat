@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NEXUS — Secure Messaging</title>
+    <title>GENIUSCHAT — Secure Messaging</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -118,7 +118,7 @@
         }
         /* Glass morphism effect for header */
         .glass-header {
-            background: rgba(15, 23, 42, 0.95);
+            background: oklch(13% 0.028 261.692);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #334155;
         }
@@ -139,7 +139,7 @@
                             <div class="w-8 h-8 bg-accent-600 rounded flex items-center justify-center">
                                 <i class="fas fa-network-wired text-sm text-white"></i>
                             </div>
-                            <h1 class="text-lg font-mono font-bold text-slate-100">NEXUS</h1>
+                            <h1 class="text-lg font-mono font-bold text-slate-100">GENIUS</h1>
                         </div>
                         <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-200">
                             <i class="fas fa-times text-lg"></i>
@@ -221,7 +221,7 @@
                     <div class="w-16 h-16 bg-slate-800 rounded-lg flex items-center justify-center mb-6 border border-slate-700">
                         <i class="fas fa-network-wired text-2xl text-accent-500"></i>
                     </div>
-                    <h3 class="text-xl font-mono font-semibold text-slate-300">NEXUS TERMINAL</h3>
+                    <h3 class="text-xl font-mono font-semibold text-slate-300">GENIUSCHAT TERMINAL</h3>
                     <p class="text-slate-500 mt-3 max-w-md font-mono text-sm">Secure channel established. Awaiting transmission...</p>
                 </div>
             </div>
@@ -264,7 +264,7 @@
 
     <!-- Add Channel Modal -->
     <div id="channelModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-lg max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-oklch(13% 0.028 261.692) border border-slate-700 rounded-lg max-w-md w-full p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-mono font-bold text-slate-100">NEW CHANNEL</h3>
                 <button id="closeModalBtn" class="text-slate-400 hover:text-slate-200">

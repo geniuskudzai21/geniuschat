@@ -110,12 +110,19 @@ function escapeHtml(text) {
 function renderChannels() {
     const channelsList = document.getElementById('channelsList');
     channelsList.innerHTML = channels.map(ch => `
-        <button class="channel-item w-full text-left px-3 py-2.5 rounded-lg transition-all ${currentChannel.id === ch.id ? 'bg-accent-600/20 text-accent-400 font-medium border border-accent-600/30' : 'hover:bg-slate-800 text-slate-300 border border-transparent'}" data-channel-id="${ch.id}">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-hashtag ${currentChannel.id === ch.id ? 'text-accent-400' : 'text-slate-600'} text-sm"></i>
-                <span class="font-mono text-sm">${escapeHtml(ch.name)}</span>
-            </div>
-        </button>
+        <div class="channel-wrapper flex items-center group">
+            <button class="channel-item flex-1 text-left px-3 py-2.5 rounded-lg transition-all ${currentChannel.id === ch.id ? 'bg-accent-600/20 text-accent-400 font-medium border border-accent-600/30' : 'hover:bg-slate-800 text-slate-300 border border-transparent'}" data-channel-id="${ch.id}">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-hashtag ${currentChannel.id === ch.id ? 'text-accent-400' : 'text-slate-600'} text-sm"></i>
+                    <span class="font-mono text-sm">${escapeHtml(ch.name)}</span>
+                </div>
+            </button>
+            ${ch.id !== 'general' ? `
+                <button class="delete-channel-btn p-2 text-slate-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200" data-channel-id="${ch.id}" title="Delete channel">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            ` : ''}
+        </div>
     `).join('');
     
     // Add event listeners to channel buttons
@@ -133,6 +140,15 @@ function renderChannels() {
                     body.classList.remove('sidebar-open');
                 }
             }
+        });
+    });
+    
+    // Add event listeners to delete buttons
+    document.querySelectorAll('.delete-channel-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const channelId = btn.dataset.channelId;
+            deleteChannel(channelId);
         });
     });
 }
@@ -182,6 +198,31 @@ function updateCharCount() {
         charCounter.classList.add('text-accent-500');
     } else {
         charCounter.classList.remove('text-accent-500');
+    }
+}
+
+function deleteChannel(channelId) {
+    if (channelId === 'general') {
+        alert('Cannot delete the general channel!');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete the channel "${channels.find(c => c.id === channelId)?.name}"? This action cannot be undone.`)) {
+        // Remove channel from channels array
+        channels = channels.filter(c => c.id !== channelId);
+        
+        // Remove messages for this channel
+        delete allMessages[channelId];
+        
+        // If deleted channel was current, switch to general
+        if (currentChannel.id === channelId) {
+            currentChannel = { id: 'general', name: 'General' };
+            channelNameSpan.textContent = '#general';
+        }
+        
+        // Re-render channels and messages
+        renderChannels();
+        renderMessages();
     }
 }
 
