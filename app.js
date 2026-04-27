@@ -1,8 +1,43 @@
 // ======================== APPLICATION STATE ========================
+let currentUser = null;
 let currentChannel = { id: 'general', name: 'General' };
 let messages = [];
 let isTyping = false;
 let typingTimeout = null;
+
+// Check login status on load
+window.addEventListener('load', () => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            currentUser = JSON.parse(userData);
+            updateUserDisplay();
+        }
+    } else {
+        // Redirect to login if not logged in
+        window.location.href = 'login.html';
+    }
+});
+
+function updateUserDisplay() {
+    if (!currentUser) return;
+    
+    // Update any user-related elements
+    const userElements = document.querySelectorAll('.current-user');
+    userElements.forEach(el => {
+        el.textContent = currentUser.name || 'Guest User';
+    });
+    
+    // Update sidebar user info if it exists
+    const sidebarUser = document.querySelector('.sidebar-user-info');
+    if (sidebarUser) {
+        sidebarUser.innerHTML = `
+            <h3 class="font-bold text-white text-lg">${currentUser.name}</h3>
+            <p class="text-sm text-blue font-medium">${currentUser.email}</p>
+        `;
+    }
+}
 
 // Mock data for demonstration (will be replaced with Supabase)
 let channels = [
@@ -48,6 +83,7 @@ const settingsModal = document.getElementById('settingsModal');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 const channelModal = document.getElementById('channelModal');
 const inviteModal = document.getElementById('inviteModal');
 const closeInviteBtn = document.getElementById('closeInviteBtn');
@@ -405,6 +441,14 @@ if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') 
     document.documentElement.classList.remove('dark');
 }
 
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+}
+
 themeToggle.addEventListener('click', () => {
     // Open settings modal instead of theme toggle
     settingsModal.classList.remove('hidden');
@@ -424,6 +468,7 @@ function closeSettings() {
 
 closeSettingsBtn.addEventListener('click', closeSettings);
 cancelSettingsBtn.addEventListener('click', closeSettings);
+logoutBtn.addEventListener('click', logout);
 saveSettingsBtn.addEventListener('click', () => {
     // Here you would typically save the settings
     alert('Settings saved successfully!');
