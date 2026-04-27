@@ -6,10 +6,16 @@ let typingTimeout = null;
 
 // Mock data for demonstration (will be replaced with Supabase)
 let channels = [
-    { id: 'general', name: 'General' },
-    { id: 'random', name: 'Random' },
-    { id: 'tech', name: 'Tech Talk' }
+    { id: 'general', name: 'General', isPrivate: false, members: ['You', 'Alice', 'Bob'] },
+    { id: 'random', name: 'Random', isPrivate: true, members: ['You', 'Charlie'], inviteCode: 'RAND123' },
+    { id: 'tech', name: 'Tech Talk', isPrivate: true, members: ['You', 'Diana'], inviteCode: 'TECH456' }
 ];
+
+// Store invite codes for channels
+let inviteCodes = {
+    'random': 'RAND123',
+    'tech': 'TECH456'
+};
 
 let allMessages = {
     general: [
@@ -43,6 +49,15 @@ const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const channelModal = document.getElementById('channelModal');
+const inviteModal = document.getElementById('inviteModal');
+const closeInviteBtn = document.getElementById('closeInviteBtn');
+const cancelInviteBtn = document.getElementById('cancelInviteBtn');
+const sendInviteBtn = document.getElementById('sendInviteBtn');
+const inviteChannelName = document.getElementById('inviteChannelName');
+const inviteCodeInput = document.getElementById('inviteCodeInput');
+const inviteLinkInput = document.getElementById('inviteLinkInput');
+const copyInviteBtn = document.getElementById('copyInviteBtn');
+const copyLinkBtn = document.getElementById('copyLinkBtn');
 const channelNameInput = document.getElementById('channelNameInput');
 const createChannelBtn = document.getElementById('createChannelBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
@@ -115,11 +130,16 @@ function renderChannels() {
         <div class="channel-wrapper flex items-center group">
             <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${currentChannel.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-hashtag ${currentChannel.id === ch.id ? 'text-blue' : 'text-silver-dark'} text-sm"></i>
+                    <i class="fas ${ch.isPrivate ? 'fa-lock' : 'fa-hashtag'} ${currentChannel.id === ch.id ? 'text-blue' : 'text-silver-dark'} text-sm"></i>
                     <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
+                    ${ch.isPrivate ? '<span class="text-xs text-blue ml-2">🔒</span>' : ''}
+                    ${ch.members ? `<span class="text-xs text-silver-dark ml-2">(${ch.members.length})</span>` : ''}
                 </div>
             </button>
             ${ch.id !== 'general' ? `
+                <button class="invite-channel-btn p-2 text-silver-dark hover:text-blue opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110" data-channel-id="${ch.id}" title="Invite to channel">
+                    <i class="fas fa-user-plus text-xs"></i>
+                </button>
                 <button class="delete-channel-btn p-2 text-silver-dark hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110" data-channel-id="${ch.id}" title="Delete channel">
                     <i class="fas fa-trash text-xs"></i>
                 </button>
@@ -151,6 +171,15 @@ function renderChannels() {
             e.stopPropagation();
             const channelId = btn.dataset.channelId;
             deleteChannel(channelId);
+        });
+    });
+    
+    // Add event listeners to invite buttons
+    document.querySelectorAll('.invite-channel-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const channelId = btn.dataset.channelId;
+            showInviteModal(channelId);
         });
     });
 }
@@ -225,6 +254,60 @@ function deleteChannel(channelId) {
         // Re-render channels and messages
         renderChannels();
         renderMessages();
+    }
+}
+
+function showInviteModal(channelId) {
+    const channel = channels.find(c => c.id === channelId);
+    if (!channel) return;
+    
+    inviteChannelName.value = channel.name;
+    inviteCodeInput.value = channel.inviteCode || '';
+    inviteLinkInput.value = `${window.location.origin}/invite/${channel.inviteCode || ''}`;
+    
+    inviteModal.classList.remove('hidden');
+    inviteModal.style.display = 'flex';
+}
+
+function closeInviteModal() {
+    inviteModal.classList.add('hidden');
+    inviteModal.style.display = 'none';
+    inviteCodeInput.value = '';
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Show success feedback
+        const originalText = event.target.innerHTML;
+        event.target.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+        setTimeout(() => {
+            event.target.innerHTML = originalText;
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+    });
+}
+
+function joinChannelByInvite() {
+    const code = inviteCodeInput.value.trim().toUpperCase();
+    const channelId = Object.keys(inviteCodes).find(id => inviteCodes[id] === code);
+    
+    if (channelId) {
+        const channel = channels.find(c => c.id === channelId);
+        if (channel && !channel.members.includes('You')) {
+            channel.members.push('You');
+            currentChannel = { id: channelId, name: channel.name };
+            channelNameSpan.textContent = `#${channel.name}`;
+            renderChannels();
+            renderMessages();
+            closeInviteModal();
+            alert(`Successfully joined ${channel.name}!`);
+        } else if (channel) {
+            alert('You are already a member of this channel!');
+        }
+    } else {
+        alert('Invalid invite code!');
     }
 }
 
@@ -319,6 +402,22 @@ saveSettingsBtn.addEventListener('click', () => {
 
 settingsModal.addEventListener('click', (e) => {
     if (e.target === settingsModal) closeSettings();
+});
+
+// Invite modal handling
+closeInviteBtn.addEventListener('click', closeInviteModal);
+cancelInviteBtn.addEventListener('click', closeInviteModal);
+sendInviteBtn.addEventListener('click', joinChannelByInvite);
+copyInviteBtn.addEventListener('click', (e) => {
+    const code = inviteCodeInput.value;
+    if (code) copyToClipboard.call(e.target, code);
+});
+copyLinkBtn.addEventListener('click', (e) => {
+    const link = inviteLinkInput.value;
+    if (link) copyToClipboard.call(e.target, link);
+});
+inviteModal.addEventListener('click', (e) => {
+    if (e.target === inviteModal) closeInviteModal();
 });
 
 // Modal handling
