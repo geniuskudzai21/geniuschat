@@ -44,8 +44,6 @@ const createChannelBtn = document.getElementById('createChannelBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const cancelModalBtn = document.getElementById('cancelModalBtn');
 const charCounter = document.getElementById('charCounter');
-const attachBtn = document.getElementById('attachBtn');
-const emojiBtn = document.getElementById('emojiBtn');
 
 // ======================== HELPER FUNCTIONS ========================
 function formatTime(date) {
@@ -313,15 +311,6 @@ channelModal.addEventListener('click', (e) => {
     if (e.target === channelModal) closeModal();
 });
 
-// Attach button (demo)
-attachBtn.addEventListener('click', () => {
-    alert('File attachment protocol will be available when connected to backend! 📎');
-});
-
-// Emoji button (demo)
-emojiBtn.addEventListener('click', () => {
-    alert('Emoji matrix coming soon! 😊');
-});
 
 // Initialize
 renderChannels();

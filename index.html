@@ -133,13 +133,13 @@
         <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 border-r border-slate-800 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300">
             <div class="flex flex-col h-full">
                 <!-- Sidebar Header -->
-                <div class="p-6 border-b border-slate-800 bg-slate-950">
+                <div class="p-6 border-b border-slate-800 bg-black">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 bg-accent-600 rounded flex items-center justify-center">
                                 <i class="fas fa-network-wired text-sm text-white"></i>
                             </div>
-                            <h1 class="text-lg font-mono font-bold text-slate-100">GENIUS</h1>
+                            <h1 class="text-lg font-mono font-bold text-slate-100">GENIUSCHAT</h1>
                         </div>
                         <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-200">
                             <i class="fas fa-times text-lg"></i>
@@ -153,7 +153,7 @@
                     <div class="flex items-center space-x-3">
                         <div class="relative">
                             <div class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 font-mono text-sm border border-slate-600">
-                                G.U.
+                                GU
                             </div>
                             <span class="absolute bottom-0 right-0 w-3 h-3 bg-accent-500 border-2 border-slate-900 rounded-full"></span>
                         </div>
@@ -191,7 +191,7 @@
         <main class="flex-1 flex flex-col h-full w-full overflow-hidden">
             
             <!-- Chat Header -->
-            <header class="glass-header px-6 py-4 flex items-center justify-between border-b border-slate-800">
+            <header class="glass-header px-6 py-4 flex items-center justify-between bg-oklch(12.9% 0.042 264.695)">
                 <div class="flex items-center space-x-4">
                     <button id="openSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-200">
                         <i class="fas fa-bars text-lg"></i>
@@ -241,18 +241,12 @@
             <!-- Message Input Area -->
             <div class="border-t border-slate-800 bg-slate-900 p-4">
                 <div class="flex items-end space-x-3">
-                    <button id="attachBtn" class="text-slate-500 hover:text-accent-400 transition-colors p-2 rounded-lg hover:bg-slate-800 border border-slate-700">
-                        <i class="fas fa-paperclip text-sm"></i>
-                    </button>
                     <div class="flex-1 relative">
                         <textarea id="messageInput" rows="1" placeholder="TRANSMIT MESSAGE..." class="w-full px-4 py-3 pr-12 bg-slate-800 border border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-slate-100 placeholder-slate-500 transition-all font-mono text-sm"></textarea>
-                        <button id="sendBtn" class="absolute right-2 bottom-2 p-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="sendBtn" class="absolute right-0 bottom-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-paper-plane text-xs"></i>
                         </button>
                     </div>
-                    <button id="emojiBtn" class="text-slate-500 hover:text-accent-400 transition-colors p-2 rounded-lg hover:bg-slate-800 border border-slate-700">
-                        <i class="far fa-smile text-sm"></i>
-                    </button>
                 </div>
                 <div class="flex justify-between items-center mt-2 px-1">
                     <span class="text-xs text-slate-600 font-mono">ENTER TO TRANSMIT</span>
