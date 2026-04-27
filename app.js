@@ -38,6 +38,10 @@ const closeSidebarBtn = document.getElementById('closeSidebarBtn');
 const body = document.body;
 const themeToggle = document.getElementById('themeToggle');
 const addChannelBtn = document.getElementById('addChannelBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const channelModal = document.getElementById('channelModal');
 const channelNameInput = document.getElementById('channelNameInput');
 const createChannelBtn = document.getElementById('createChannelBtn');
@@ -237,6 +241,7 @@ function createChannel() {
         channelNameSpan.textContent = `#${name}`;
         renderMessages();
         channelModal.classList.add('hidden');
+        channelModal.style.display = 'none';
         channelNameInput.value = '';
     } else {
         alert('Channel already exists!');
@@ -288,8 +293,32 @@ if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') 
 }
 
 themeToggle.addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    // Open settings modal instead of theme toggle
+    settingsModal.classList.remove('hidden');
+    settingsModal.style.display = 'flex';
+});
+
+// Settings modal handling
+function openSettings() {
+    settingsModal.classList.remove('hidden');
+    settingsModal.style.display = 'flex';
+}
+
+function closeSettings() {
+    settingsModal.classList.add('hidden');
+    settingsModal.style.display = 'none';
+}
+
+closeSettingsBtn.addEventListener('click', closeSettings);
+cancelSettingsBtn.addEventListener('click', closeSettings);
+saveSettingsBtn.addEventListener('click', () => {
+    // Here you would typically save the settings
+    alert('Settings saved successfully!');
+    closeSettings();
+});
+
+settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettings();
 });
 
 // Modal handling

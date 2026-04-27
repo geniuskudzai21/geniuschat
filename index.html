@@ -39,10 +39,10 @@
     <div class="flex h-screen overflow-hidden bg-gradient-to-br from-black via-darkgrey-dark to-black">
         
         <!-- ======================== SIDEBAR ======================== -->
-        <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-80 bg-gradient-to-b from-darkgrey-dark to-black border-b border-blue/20 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 shadow-2xl shadow-blue/10">
+        <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-75 bg-gradient-to-b from-darkgrey-dark to-black border-b border-blue/20 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 shadow-2xl shadow-blue/10">
             <div class="flex flex-col h-full">
                 <!-- Sidebar Header -->
-                <div class="p-6 border-b border-blue/20 bg-gradient-to-r from-darkgrey-dark to-darkgrey-light relative overflow-hidden">
+                <div class="p-6 border-b border-blue/20 bg-gradient-to-b from-darkgrey-dark to-black relative overflow-hidden">
                     <div class="absolute inset-0 bg-blue/5 opacity-50"></div>
                     <div class="relative z-10">
                         <div class="flex items-center justify-between">
@@ -70,32 +70,14 @@
                     </div>
                 </div>
 
-                <!-- User Profile Summary -->
-                <div class="p-5 border-t border-blue/10 bg-darkgrey-dark/50 backdrop-blur">
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <div class="w-14 h-14 bg-gradient-to-br from-silver to-silver-dark rounded-2xl flex items-center justify-center text-darkgrey font-bold text-lg border-2 border-blue/30 shadow-lg">
-                                GU
                             </div>
-                            <span class="absolute bottom-0 right-0 w-4 h-4 bg-blue rounded-full border-2 border-darkgrey-dark animate-pulse"></span>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-white text-lg">Guest User</h3>
-                            <p class="text-sm text-blue font-medium">ACTIVE</p>
-                        </div>
-                        <button id="themeToggle" class="p-3 rounded-xl bg-blue/10 border border-blue/30 text-blue hover:bg-blue/20 transition-all hover:scale-105">
-                            <i class="fas fa-sign-out-alt text-lg"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
         </aside>
 
         <!-- ======================== MAIN CHAT AREA ======================== -->
         <main class="flex-1 flex flex-col h-full w-full overflow-hidden bg-gradient-to-br from-black to-darkgrey-dark">
             
             <!-- Chat Header -->
-            <header class="px-8 py-5 flex items-center justify-between bg-gradient-to-r from-darkgrey-dark via-darkgrey to-darkgrey-dark backdrop-blur-xl border-b border-blue/20 relative">
+            <header class="px-8 py-3 flex items-center justify-between bg-gradient-to-r from-darkgrey-dark via-darkgrey to-darkgrey-dark backdrop-blur-xs border-b border-blue/20 relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue/5 to-transparent"></div>
                 <div class="relative z-10 flex items-center space-x-6">
                     <button id="openSidebarBtn" class="md:hidden text-silver hover:text-blue transition-colors hover:scale-110">
@@ -108,6 +90,11 @@
                             <span>12 NODES ACTIVE</span>
                         </p>
                     </div>
+                </div>
+                <div class="relative z-10 flex items-center space-x-3">
+                    <button id="themeToggle" class="p-4 text-blue transition-all hover:scale-105">
+                        <i class="fas fa-cog text-lg"></i>
+                    </button>
                 </div>
             </header>
 
@@ -161,9 +148,126 @@
         </main>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-50 hidden items-center justify-center p-6">
+        <div class="bg-gradient-to-b from-darkgrey-dark to-black border-2 border-blue/30 rounded-3xl max-w-2xl w-full p-8 shadow-2xl shadow-blue/20 backdrop-blur-xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue/10 to-transparent opacity-50"></div>
+            <div class="relative z-10">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-2xl font-bold text-white tracking-wider">SETTINGS</h3>
+                    <button id="closeSettingsBtn" class="text-silver hover:text-blue transition-colors hover:scale-110">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold text-blue mb-4 tracking-wider">PROFILE INFORMATION</h4>
+                    <div class="flex items-center space-x-6 mb-6">
+                        <div class="relative">
+                            <div class="w-24 h-24 bg-gradient-to-br from-silver to-silver-dark rounded-3xl flex items-center justify-center text-darkgrey font-bold text-2xl border-3 border-blue/30 shadow-xl">
+                                GU
+                            </div>
+                            <button class="absolute bottom-0 right-0 w-8 h-8 bg-blue rounded-full border-2 border-darkgrey-dark flex items-center justify-center hover:bg-blue-dark transition-colors">
+                                <i class="fas fa-camera text-xs text-white"></i>
+                            </button>
+                        </div>
+                        <div class="flex-1">
+                            <h5 class="text-xl font-bold text-white mb-2">Guest User</h5>
+                            <p class="text-silver-dark text-sm mb-1">Status: <span class="text-blue font-medium">ACTIVE</span></p>
+                            <p class="text-silver-dark text-sm">Member since: January 2024</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Details -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold text-blue mb-4 tracking-wider">ACCOUNT DETAILS</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-silver-dark mb-2">Username</label>
+                            <input type="text" value="guest_user" class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white placeholder-silver-dark focus:ring-4 focus:ring-blue/20 focus:border-blue font-mono text-sm backdrop-blur">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-silver-dark mb-2">Email Address</label>
+                            <input type="email" value="guest@geniuschat.com" class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white placeholder-silver-dark focus:ring-4 focus:ring-blue/20 focus:border-blue font-mono text-sm backdrop-blur">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-silver-dark mb-2">Display Name</label>
+                            <input type="text" value="Guest User" class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white placeholder-silver-dark focus:ring-4 focus:ring-blue/20 focus:border-blue font-mono text-sm backdrop-blur">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-silver-dark mb-2">Bio</label>
+                            <textarea rows="3" placeholder="Tell us about yourself..." class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white placeholder-silver-dark focus:ring-4 focus:ring-blue/20 focus:border-blue font-mono text-sm backdrop-blur resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold text-blue mb-4 tracking-wider">PREFERENCES</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h5 class="text-white font-medium">Email Notifications</h5>
+                                <p class="text-silver-dark text-sm">Receive email updates about your messages</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-darkgrey-light/50 peer-focus:ring-4 peer-focus:ring-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h5 class="text-white font-medium">Sound Effects</h5>
+                                <p class="text-silver-dark text-sm">Play sounds for messages and notifications</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-darkgrey-light/50 peer-focus:ring-4 peer-focus:ring-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h5 class="text-white font-medium">Dark Mode</h5>
+                                <p class="text-silver-dark text-sm">Use dark theme across the application</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-darkgrey-light/50 peer-focus:ring-4 peer-focus:ring-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold text-blue mb-4 tracking-wider">SECURITY</h4>
+                    <div class="space-y-3">
+                        <button class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white hover:bg-blue/10 transition-all font-mono text-sm backdrop-blur text-left">
+                            <i class="fas fa-key mr-3 text-blue"></i> Change Password
+                        </button>
+                        <button class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white hover:bg-blue/10 transition-all font-mono text-sm backdrop-blur text-left">
+                            <i class="fas fa-shield-alt mr-3 text-blue"></i> Two-Factor Authentication
+                        </button>
+                        <button class="w-full px-4 py-3 bg-darkgrey-light/50 border-2 border-blue/30 rounded-xl text-white hover:bg-blue/10 transition-all font-mono text-sm backdrop-blur text-left">
+                            <i class="fas fa-history mr-3 text-blue"></i> Login History
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end space-x-4">
+                    <button id="cancelSettingsBtn" class="px-6 py-3 text-silver hover:text-white hover:bg-blue/10 rounded-2xl transition-all font-mono font-medium border border-silver/30 hover:border-blue/30">CANCEL</button>
+                    <button id="saveSettingsBtn" class="px-6 py-3 bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-blue/30 font-mono font-bold">SAVE CHANGES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Channel Modal -->
     <div id="channelModal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-50 hidden items-center justify-center p-6">
-        <div class="bg-gradient-to-br from-darkgrey-dark to-darkgrey border-2 border-blue/30 rounded-3xl max-w-lg w-full p-8 shadow-2xl shadow-blue/20 backdrop-blur-xl relative overflow-hidden">
+        <div class="bg-gradient-to-b from-darkgrey-dark to-black border-2 border-blue/30 rounded-3xl max-w-lg w-full p-8 shadow-2xl shadow-blue/20 backdrop-blur-xl relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-br from-blue/10 to-transparent opacity-50"></div>
             <div class="relative z-10">
                 <div class="flex justify-between items-center mb-8">
