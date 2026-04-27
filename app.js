@@ -275,13 +275,13 @@ function closeInviteModal() {
     inviteCodeInput.value = '';
 }
 
-function copyToClipboard(text) {
+function copyToClipboard(button, text) {
     navigator.clipboard.writeText(text).then(() => {
         // Show success feedback
-        const originalText = event.target.innerHTML;
-        event.target.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check text-green-400"></i>';
         setTimeout(() => {
-            event.target.innerHTML = originalText;
+            button.innerHTML = originalHTML;
         }, 2000);
     }).catch(err => {
         console.error('Failed to copy:', err);
@@ -317,18 +317,48 @@ function createChannel() {
     
     const id = name.toLowerCase().replace(/\s+/g, '-');
     if (!channels.find(c => c.id === id)) {
-        channels.push({ id, name });
+        // Generate invite code
+        const inviteCode = generateInviteCode();
+        
+        // Create private channel with invite code
+        const newChannel = { 
+            id, 
+            name, 
+            isPrivate: true, 
+            members: ['You'], 
+            inviteCode: inviteCode 
+        };
+        
+        channels.push(newChannel);
         allMessages[id] = [];
+        inviteCodes[id] = inviteCode;
+        
         renderChannels();
         currentChannel = { id, name };
         channelNameSpan.textContent = `#${name}`;
         renderMessages();
+        
+        // Show invite code to user
         channelModal.classList.add('hidden');
         channelModal.style.display = 'none';
         channelNameInput.value = '';
+        
+        // Show success message with invite code
+        setTimeout(() => {
+            alert(`Channel "${name}" created successfully!\n\nYour invite code is: ${inviteCode}\n\nShare this code with others to let them join your private channel.`);
+        }, 100);
     } else {
         alert('Channel already exists!');
     }
+}
+
+function generateInviteCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
 }
 
 // ======================== EVENT LISTENERS ========================
@@ -410,11 +440,11 @@ cancelInviteBtn.addEventListener('click', closeInviteModal);
 sendInviteBtn.addEventListener('click', joinChannelByInvite);
 copyInviteBtn.addEventListener('click', (e) => {
     const code = inviteCodeInput.value;
-    if (code) copyToClipboard.call(e.target, code);
+    if (code) copyToClipboard(e.target, code);
 });
 copyLinkBtn.addEventListener('click', (e) => {
     const link = inviteLinkInput.value;
-    if (link) copyToClipboard.call(e.target, link);
+    if (link) copyToClipboard(e.target, link);
 });
 inviteModal.addEventListener('click', (e) => {
     if (e.target === inviteModal) closeInviteModal();
