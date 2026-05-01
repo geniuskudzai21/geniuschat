@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS channels (
     name TEXT NOT NULL,
     is_private BOOLEAN DEFAULT false,
     invite_code TEXT UNIQUE,
-    created_by TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS channels (
 CREATE TABLE IF NOT EXISTS messages (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    user_id TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     username TEXT NOT NULL,
     text TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS channel_members (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    user_id TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(channel_id, user_id)
 );
@@ -176,5 +176,5 @@ ALTER PUBLICATION supabase_realtime ADD TABLE channel_members;
 -- ======================== INITIAL DATA ========================
 -- Insert general channel if it doesn't exist
 INSERT INTO channels (id, name, is_private, created_by)
-VALUES ('general', 'General', false, 'system')
+VALUES ('general', 'General', false, NULL)
 ON CONFLICT (id) DO NOTHING;

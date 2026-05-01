@@ -1,6 +1,11 @@
 // ======================== SUPABASE CONFIGURATION ========================
-const supabaseUrl = 'YOUR_SUPABASE_URL'; // Replace with your Supabase URL
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your Supabase anon key
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ======================== APPLICATION STATE ========================
@@ -302,7 +307,7 @@ async function createGeneralChannel() {
             id: 'general',
             name: 'General',
             is_private: false,
-            created_by: 'system'
+            created_by: null
         })
         .select()
         .single();

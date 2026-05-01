@@ -1,0 +1,29 @@
+{
+  "name": "geniuschat",
+  "version": "1.0.0",
+  "description": "A modern, real-time chat application with Supabase integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "python -m http.server 8000",
+    "serve:node": "npx serve . -p 8000"
+  },
+  "keywords": [
+    "chat",
+    "real-time",
+    "supabase",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "GENIUSCHAT Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  }
+}
