@@ -11,7 +11,6 @@ async function signInWithEmail(email, password) {
         if (error) throw error;
         
         currentUser = data.user;
-        await initializeApp();
         showSuccess('Signed in successfully!');
         return data;
     } catch (error) {
@@ -35,7 +34,6 @@ async function signUpWithEmail(email, password) {
             showSuccess('Account created! Please check your email to verify.');
         } else {
             currentUser = data.user;
-            await initializeApp();
             showSuccess('Account created and signed in!');
         }
         return data;

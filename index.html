@@ -332,8 +332,25 @@
     </div>
 
     <!-- Custom JavaScript -->
+    <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="supabase.js"></script>
     <script src="app.js"></script>
+    
+    <script>
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                // Redirect to login page if not authenticated
+                window.location.href = 'login.html';
+            } else {
+                // Initialize app if authenticated
+                currentUser = session.user;
+                initializeApp();
+            }
+        });
+    </script>
 </body>
 </html>

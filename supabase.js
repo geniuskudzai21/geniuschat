@@ -1,17 +1,8 @@
 // ======================== SUPABASE OPERATIONS ========================
 
-// Initialize the application
+// Initialize the application (called from index.html after auth check)
 async function initializeApp() {
     try {
-        // Get current session
-        const { data: { session } } = await supabase.auth.getSession();
-        currentUser = session?.user;
-        
-        if (!currentUser) {
-            showSignInPrompt();
-            return;
-        }
-        
         await loadChannels();
         await loadMessages();
         setupRealtimeSubscriptions();
