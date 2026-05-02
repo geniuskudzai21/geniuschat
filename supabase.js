@@ -35,7 +35,13 @@ async function initializeApp() {
         }
         await loadChannels();
         setupRealtimeSubscriptions();
-        if (!window.currentChannel) {
+        
+        // Restore last active channel from localStorage
+        const savedChannelId = localStorage.getItem('geniuschat_current_channel');
+        if (savedChannelId && window.channels.find(c => c.id === savedChannelId)) {
+            console.log('🔄 Restoring saved channel:', savedChannelId);
+            await switchToChannel(savedChannelId);
+        } else if (!window.currentChannel) {
             console.log('📂 No current channel, opening modal');
             openChannelModal();
         } else {
@@ -50,20 +56,39 @@ async function initializeApp() {
 
 async function loadChannels() {
     try {
-        const { data, error } = await supabase
+        // First get the channel IDs the user is a member of
+        const { data: memberData, error: memberError } = await supabase
             .from('channel_members')
-            .select(`
-                channel_id,
-                channels (*)
-            `)
+            .select('channel_id')
             .eq('user_id', window.currentUser.id);
         
-        if (error) {
-            console.error('Database error:', error);
-            throw error;
+        if (memberError) {
+            console.error('Database error loading members:', memberError);
+            throw memberError;
         }
         
-        window.channels = data?.map(m => m.channels).filter(Boolean) || [];
+        if (!memberData || memberData.length === 0) {
+            window.channels = [];
+            console.log('No channels found for user');
+            renderChannels();
+            return;
+        }
+        
+        const channelIds = memberData.map(m => m.channel_id);
+        
+        // Then get the channel details
+        const { data: channelsData, error: channelsError } = await supabase
+            .from('channels')
+            .select('*')
+            .in('id', channelIds)
+            .order('created_at', { ascending: false });
+        
+        if (channelsError) {
+            console.error('Database error loading channels:', channelsError);
+            throw channelsError;
+        }
+        
+        window.channels = channelsData || [];
         console.log('Successfully loaded', window.channels.length, 'channels from database (membership filtered)');
         renderChannels();
     } catch (error) {
@@ -81,8 +106,10 @@ async function addChannelMember(channelId, userId) {
         if (error && error.code !== '23505') { // Ignore duplicate key errors
             throw error;
         }
+        return true;
     } catch (error) {
         console.error('Error adding channel member:', error);
+        return false;
     }
 }
 
@@ -140,7 +167,11 @@ async function createChannel(name) {
         }
         
         // Add creator as a member
-        await addChannelMember(data.id, window.currentUser.id);
+        const memberAdded = await addChannelMember(data.id, window.currentUser.id);
+        if (!memberAdded) {
+            console.error('Failed to add user as channel member');
+            showError('Channel created but failed to join. Try refreshing.');
+        }
         
         window.channels.push(data);
         renderChannels();
@@ -165,7 +196,11 @@ async function joinChannelByCode(code) {
             return null;
         }
         // Add user to channel members
-        await addChannelMember(data.id, window.currentUser.id);
+        const memberAdded = await addChannelMember(data.id, window.currentUser.id);
+        if (!memberAdded) {
+            showError('Failed to join channel. Membership not saved.');
+            return null;
+        }
         if (!window.channels.find(c => c.id === data.id)) {
             window.channels.push(data);
             renderChannels();
@@ -187,6 +222,7 @@ async function switchToChannel(channelId) {
     }
     console.log('✅ Found channel:', channel);
     window.currentChannel = channel;
+    localStorage.setItem('geniuschat_current_channel', channel.id);
     document.getElementById('channelName').textContent = '#' + channel.name;
     messageInput.disabled = false;
     sendBtn.disabled = false;
