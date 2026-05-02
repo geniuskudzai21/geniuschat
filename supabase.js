@@ -28,6 +28,7 @@ function openChannelModal() {
 
 async function initializeApp() {
     try {
+        console.log('🚀 Initializing app...');
         const userNameElement = document.getElementById('userName');
         if (userNameElement) {
             userNameElement.textContent = window.currentUser.name || 'Guest User';
@@ -35,8 +36,10 @@ async function initializeApp() {
         await loadChannels();
         setupRealtimeSubscriptions();
         if (!window.currentChannel) {
+            console.log('📂 No current channel, opening modal');
             openChannelModal();
         } else {
+            console.log('🔄 Switching to channel:', window.currentChannel.id);
             await switchToChannel(window.currentChannel.id);
         }
     } catch (error) {
@@ -155,15 +158,22 @@ async function joinChannelByCode(code) {
 }
 
 async function switchToChannel(channelId) {
+    console.log('🔄 Switching to channel:', channelId);
     const channel = window.channels.find(c => c.id === channelId);
-    if (!channel) return;
+    if (!channel) {
+        console.error('❌ Channel not found:', channelId);
+        return;
+    }
+    console.log('✅ Found channel:', channel);
     window.currentChannel = channel;
     document.getElementById('channelName').textContent = '#' + channel.name;
     messageInput.disabled = false;
     sendBtn.disabled = false;
     document.getElementById('inviteBtn').classList.remove('hidden');
     await loadMessages(channelId);
+    console.log('📨 Messages loaded, calling renderMessages');
     renderMessages();
+    console.log('📋 Rendering channels');
     renderChannels();
 }
 

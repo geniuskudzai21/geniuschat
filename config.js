@@ -21,10 +21,11 @@ if (window.supabase && window.supabase.createClient) {
 }
 
 let currentChannel = null;
-let currentUser = {
+let currentUser = JSON.parse(localStorage.getItem('geniuschat_user')) || {
     id: 'user_' + Math.random().toString(36).substr(2, 9),
     name: 'User' + Math.floor(Math.random() * 1000)
 };
+localStorage.setItem('geniuschat_user', JSON.stringify(currentUser));
 let channels = [];
 let allMessages = {};
 
