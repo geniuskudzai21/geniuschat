@@ -251,12 +251,17 @@ function renderChannels() {
     if (!channelsList) return;
     
     channelsList.innerHTML = window.channels.map(ch => `
-        <button class="channel-item w-full text-left px-4 py-3 rounded-2xl transition-all ${window.currentChannel?.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-hashtag ${window.currentChannel?.id === ch.id ? 'text-blue' : 'text-silver-dark'} text-sm"></i>
-                <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
-            </div>
-        </button>
+        <div class="flex items-center space-x-2 group">
+            <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${window.currentChannel?.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-hashtag ${window.currentChannel?.id === ch.id ? 'text-blue' : 'text-silver-dark'} text-sm"></i>
+                    <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
+                </div>
+            </button>
+            <button class="delete-channel-btn p-2 rounded-xl text-silver-dark hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}">
+                <i class="fas fa-trash text-sm"></i>
+            </button>
+        </div>
     `).join('');
     
     document.querySelectorAll('.channel-item').forEach(btn => {
@@ -268,12 +273,79 @@ function renderChannels() {
             }
         });
     });
+    
+    document.querySelectorAll('.delete-channel-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const channelId = btn.dataset.channelId;
+            const channelName = btn.dataset.channelName;
+            deleteChannel(channelId, channelName);
+        });
+    });
 }
 
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+async function deleteChannel(channelId, channelName) {
+    if (!confirm(`Are you sure you want to delete channel "#${channelName}"? This will also delete all messages in this channel.`)) {
+        return;
+    }
+    
+    try {
+        // Delete all messages in the channel first
+        const { error: messagesError } = await supabase
+            .from('messages')
+            .delete()
+            .eq('channel_id', channelId);
+        
+        if (messagesError) {
+            console.error('Error deleting messages:', messagesError);
+            throw messagesError;
+        }
+        
+        // Delete the channel
+        const { error: channelError } = await supabase
+            .from('channels')
+            .delete()
+            .eq('id', channelId);
+        
+        if (channelError) {
+            console.error('Error deleting channel:', channelError);
+            throw channelError;
+        }
+        
+        // Remove from local state
+        window.channels = window.channels.filter(c => c.id !== channelId);
+        delete window.allMessages[channelId];
+        
+        // If this was the current channel, switch to another or reset
+        if (window.currentChannel?.id === channelId) {
+            window.currentChannel = null;
+            document.getElementById('channelName').textContent = '#no-channel';
+            document.getElementById('inviteBtn').classList.add('hidden');
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            renderMessages();
+            
+            // If there are other channels, switch to the first one
+            if (window.channels.length > 0) {
+                await switchToChannel(window.channels[0].id);
+            } else {
+                openChannelModal();
+            }
+        }
+        
+        renderChannels();
+        showSuccess(`Channel "#${channelName}" deleted successfully`);
+        
+    } catch (error) {
+        console.error('Failed to delete channel:', error);
+        showError('Failed to delete channel');
+    }
 }
 
 function updateNodeCount() {
