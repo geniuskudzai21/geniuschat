@@ -51,22 +51,38 @@ async function initializeApp() {
 async function loadChannels() {
     try {
         const { data, error } = await supabase
-            .from('channels')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .from('channel_members')
+            .select(`
+                channel_id,
+                channels (*)
+            `)
+            .eq('user_id', window.currentUser.id);
         
         if (error) {
             console.error('Database error:', error);
             throw error;
         }
         
-        window.channels = data || [];
-        console.log('Successfully loaded', window.channels.length, 'channels from database');
+        window.channels = data?.map(m => m.channels).filter(Boolean) || [];
+        console.log('Successfully loaded', window.channels.length, 'channels from database (membership filtered)');
         renderChannels();
     } catch (error) {
         console.error('Failed to load channels:', error);
         showError('Failed to load channels from database');
         throw error;
+    }
+}
+
+async function addChannelMember(channelId, userId) {
+    try {
+        const { error } = await supabase
+            .from('channel_members')
+            .insert({ channel_id: channelId, user_id: userId });
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+            throw error;
+        }
+    } catch (error) {
+        console.error('Error adding channel member:', error);
     }
 }
 
@@ -123,6 +139,9 @@ async function createChannel(name) {
             throw error;
         }
         
+        // Add creator as a member
+        await addChannelMember(data.id, window.currentUser.id);
+        
         window.channels.push(data);
         renderChannels();
         console.log('Channel created successfully in database');
@@ -145,6 +164,8 @@ async function joinChannelByCode(code) {
             showError('Invalid invite code!');
             return null;
         }
+        // Add user to channel members
+        await addChannelMember(data.id, window.currentUser.id);
         if (!window.channels.find(c => c.id === data.id)) {
             window.channels.push(data);
             renderChannels();

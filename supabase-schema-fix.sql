@@ -26,11 +26,22 @@ CREATE TABLE messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- ======================== CHANNEL MEMBERS TABLE ========================
+CREATE TABLE channel_members (
+    id SERIAL PRIMARY KEY,
+    channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,  -- Simple text ID for guest users
+    joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(channel_id, user_id)
+);
+
 -- ======================== INDEXES ========================
 CREATE INDEX idx_messages_channel_id ON messages(channel_id);
 CREATE INDEX idx_messages_created_at ON messages(created_at);
 CREATE INDEX idx_channels_created_by ON channels(created_by);
 CREATE INDEX idx_channels_invite_code ON channels(invite_code);
+CREATE INDEX idx_channel_members_channel_id ON channel_members(channel_id);
+CREATE INDEX idx_channel_members_user_id ON channel_members(user_id);
 
 -- ======================== GRANT PERMISSIONS TO ANON ========================
 -- Grant all permissions to anonymous users
