@@ -552,18 +552,7 @@ async function clearChat() {
 }
 
 // ======================== EVENT LISTENERS ========================
-sendBtn.addEventListener('click', sendMessage);
-
-messageInput.addEventListener('input', () => {
-    updateCharCount();
-});
-
-messageInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
+// Event listeners are now handled in supabase.js to avoid duplicates
 
 openSidebarBtn.addEventListener('click', () => {
     body.classList.add('sidebar-open');

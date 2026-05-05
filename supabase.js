@@ -7,6 +7,108 @@ function showSuccess(message) {
     alert(`SUCCESS: ${message}`);
 }
 
+// ======================== TYPING INDICATOR ========================
+let typingTimeout;
+let isTyping = false;
+let typingUsers = new Map(); // Track users currently typing with their user_id as key
+
+function showTypingIndicator() {
+    if (!window.currentChannel) return;
+    
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.classList.remove('hidden');
+    }
+    isTyping = true;
+    
+    // Auto-hide after 3 seconds of inactivity
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        hideTypingIndicator();
+    }, 3000);
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.classList.add('hidden');
+    }
+    isTyping = false;
+    clearTimeout(typingTimeout);
+}
+
+function broadcastTypingStart() {
+    if (!window.currentChannel || !window.currentUser) return;
+    
+    // Broadcast typing start event
+    window.supabase.channel('typing').send({
+        type: 'broadcast',
+        event: 'typing_start',
+        payload: {
+            channel_id: window.currentChannel.id,
+            user_id: window.currentUser.id,
+            username: window.currentUser.name
+        }
+    });
+}
+
+function broadcastTypingStop() {
+    if (!window.currentChannel || !window.currentUser) return;
+    
+    // Broadcast typing stop event
+    window.supabase.channel('typing').send({
+        type: 'broadcast',
+        event: 'typing_stop',
+        payload: {
+            channel_id: window.currentChannel.id,
+            user_id: window.currentUser.id
+        }
+    });
+}
+
+function updateTypingIndicator(user_id, username, isTyping) {
+    if (!window.currentChannel) return;
+    
+    if (isTyping) {
+        typingUsers.set(user_id, username);
+    } else {
+        typingUsers.delete(user_id);
+    }
+    
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        // Remove current user from typing list for display
+        const otherTypingUsers = Array.from(typingUsers.entries())
+            .filter(([id, name]) => id !== window.currentUser.id)
+            .map(([id, name]) => name);
+        
+        if (otherTypingUsers.length > 0) {
+            typingIndicator.classList.remove('hidden');
+            let typingText = '';
+            if (otherTypingUsers.length === 1) {
+                typingText = `${otherTypingUsers[0]} is typing...`;
+            } else if (otherTypingUsers.length === 2) {
+                typingText = `${otherTypingUsers[0]} and ${otherTypingUsers[1]} are typing...`;
+            } else {
+                typingText = `${otherTypingUsers.length} people are typing...`;
+            }
+            
+            typingIndicator.innerHTML = `
+                <div class="flex items-center space-x-3 text-sm text-blue font-medium">
+                    <div class="flex space-x-1">
+                        <span class="w-2 h-2 bg-blue rounded-full inline-block animate-bounce"></span>
+                        <span class="w-2 h-2 bg-blue rounded-full inline-block animate-bounce" style="animation-delay: 0.2s"></span>
+                        <span class="w-2 h-2 bg-blue rounded-full inline-block animate-bounce" style="animation-delay: 0.4s"></span>
+                    </div>
+                    <span>${typingText}</span>
+                </div>
+            `;
+        } else {
+            typingIndicator.classList.add('hidden');
+        }
+    }
+}
+
 function openChannelModal() {
     const channelModal = document.getElementById('channelModal');
     if (channelModal) {
@@ -258,6 +360,9 @@ async function sendMessage() {
     const text = messageInput.value.trim();
     if (!text || !window.currentChannel) return;
     try {
+        // Stop broadcasting typing when sending a message
+        broadcastTypingStop();
+        
         const { error } = await supabase
             .from('messages')
             .insert({
@@ -327,12 +432,34 @@ function setupRealtimeSubscriptions() {
             }
         )
         .subscribe();
+
+    // Typing indicator subscription
+    window.supabase
+        .channel('typing')
+        .on('broadcast', { event: 'typing_start' }, (payload) => {
+            const { channel_id, user_id, username } = payload.payload;
+            // Only show typing indicator for current channel and other users
+            if (channel_id === window.currentChannel?.id && user_id !== window.currentUser.id) {
+                updateTypingIndicator(user_id, username, true);
+            }
+        })
+        .on('broadcast', { event: 'typing_stop' }, (payload) => {
+            const { channel_id, user_id } = payload.payload;
+            // Only handle typing stop for current channel and other users
+            if (channel_id === window.currentChannel?.id && user_id !== window.currentUser.id) {
+                const username = typingUsers.get(user_id);
+                if (username) {
+                    updateTypingIndicator(user_id, username, false);
+                }
+            }
+        })
+        .subscribe();
 }
 
 function renderChannels() {
     const channelsList = document.getElementById('channelsList');
     if (!channelsList) return;
-    
+
     channelsList.innerHTML = window.channels.map(ch => `
         <div class="flex items-center space-x-2 group">
             <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${window.currentChannel?.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
@@ -434,3 +561,47 @@ function updateNodeCount() {
     const count = window.allMessages[window.currentChannel?.id]?.length || 0;
     document.getElementById('nodeCount').textContent = count + ' TRANSMISSIONS';
 }
+
+// ======================== TYPING EVENT LISTENERS ========================
+document.addEventListener('DOMContentLoaded', () => {
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    if (messageInput) {
+        let typingBroadcastTimeout;
+        
+        messageInput.addEventListener('input', (e) => {
+            updateCharCount();
+            
+            // Only broadcast typing if user is actually typing in a channel
+            if (window.currentChannel && e.target.value.trim().length > 0) {
+                // Debounce broadcasting to avoid too many events
+                clearTimeout(typingBroadcastTimeout);
+                typingBroadcastTimeout = setTimeout(() => {
+                    broadcastTypingStart();
+                }, 300);
+            } else if (e.target.value.trim().length === 0) {
+                // Stop broadcasting if input is cleared
+                clearTimeout(typingBroadcastTimeout);
+                broadcastTypingStop();
+            }
+        });
+        
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Stop broadcasting when user clicks away or loses focus
+        messageInput.addEventListener('blur', () => {
+            clearTimeout(typingBroadcastTimeout);
+            broadcastTypingStop();
+        });
+    }
+    
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendMessage);
+    }
+});
