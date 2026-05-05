@@ -62,19 +62,12 @@ function renderMessages() {
         console.log(`💬 Message ${index}: isOwn=${isOwn}, text="${msg.text}"`);
         return `
             <div class="flex ${isOwn ? 'justify-end' : 'justify-start'} w-full relative z-10 scroll-fade-in" style="animation-delay: ${index * 0.1}s">
-                <div class="flex ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 max-w-[70%]">
-                    ${!isOwn ? `
-                        <div class="w-10 h-10 bg-gradient-to-br from-silver to-silver-dark rounded-2xl flex items-center justify-center text-darkgrey font-bold text-sm border-2 border-blue/20 flex-shrink-0 shadow-lg">
-                            ${msg.avatar}
-                        </div>
-                    ` : ''}
-                    <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'}">
-                        ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-1">${escapeHtml(msg.sender)}</span>` : ''}
-                        <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-4 py-2">
-                            <p class="text-sm break-words font-mono font-medium leading-relaxed">${escapeHtml(msg.text)}</p>
-                        </div>
-                        <span class="text-xs text-silver-dark mt-1 ${isOwn ? 'text-right' : 'text-left'} font-mono">${formatTime(msg.timestamp)}</span>
+                <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%]">
+                    ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-1">${escapeHtml(msg.sender)}</span>` : ''}
+                    <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-4 py-2">
+                        <p class="text-sm break-words font-mono font-medium leading-relaxed">${escapeHtml(msg.text)}</p>
                     </div>
+                    <span class="text-xs text-silver-dark mt-1 ${isOwn ? 'text-right' : 'text-left'} font-mono">${formatTime(msg.timestamp)}</span>
                 </div>
             </div>
         `;
