@@ -655,21 +655,22 @@ document.addEventListener('click', (e) => {
 });
 
 
-// Menu button event listeners
-searchMessagesBtn.addEventListener('click', (e) => {
+// Menu dropdown event delegation
+menuDropdown.addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
     e.stopPropagation();
-    openSearchModal();
-});
-
-deleteMessagesBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleSelectionMode();
-});
-
-
-clearChatBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    clearChat();
+    switch(button.id) {
+        case 'searchMessagesBtn':
+            openSearchModal();
+            break;
+        case 'deleteMessagesBtn':
+            toggleSelectionMode();
+            break;
+        case 'clearChatBtn':
+            clearChat();
+            break;
+    }
 });
 
 // Search modal event listeners

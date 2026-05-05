@@ -98,6 +98,7 @@ body.sidebar-open .sidebar-mobile {
 
 /* Menu dropdown styles */
 #menuDropdown {
+    background-color: #1a1a1a;
     animation: dropdownFadeIn 0.2s ease-out;
 }
 
