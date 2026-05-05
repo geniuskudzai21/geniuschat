@@ -188,24 +188,26 @@
     </div>
 
     <!-- Invite Code Display Modal -->
-    <div id="inviteModal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-50 hidden items-center justify-center p-6">
-        <div class="bg-bg-secondary border-2 border-blue/30 rounded-3xl max-w-md w-full p-8 shadow-2xl shadow-blue/20 backdrop-blur-xl relative overflow-hidden">
-            <div class="absolute inset-0 bg-blue/10 opacity-50"></div>
-            <div class="relative z-10">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-2xl font-bold text-white tracking-wider">CHANNEL CONNECTED</h3>
-                    <button id="closeInviteBtn" class="text-silver hover:text-blue transition-colors">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
+    <div id="inviteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-bg-secondary border border-blue/20 rounded-2xl max-w-sm w-full p-5 shadow-lg shadow-blue/10 relative">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Channel Created</h3>
+                <button id="closeInviteBtn" class="text-silver hover:text-white transition-colors p-1">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="text-center space-y-4">
+                <div>
+                    <p class="text-silver-dark text-sm mb-3">Share this invite code:</p>
+                    <div class="text-2xl font-bold text-blue tracking-widest font-mono py-3 px-4 bg-blue/5 rounded-lg border border-blue/20" id="inviteCodeDisplay"></div>
                 </div>
-                <div class="mb-6 text-center">
-                    <p class="text-silver-dark text-sm mb-2">Share this code with others:</p>
-                    <div class="text-4xl font-bold text-blue tracking-widest font-mono mb-4" id="inviteCodeDisplay"></div>
-                    <button id="copyInviteBtn" class="px-6 py-3 bg-blue/10 border border-blue/30 text-blue hover:bg-blue/20 transition-all font-mono text-sm rounded-xl">
-                        <i class="fas fa-copy mr-2"></i>COPY CODE
-                    </button>
-                </div>
-                <p class="text-silver-dark text-xs text-center">Others can use this code to join your channel</p>
+                
+                <button id="copyInviteBtn" class="w-full px-3 py-2 bg-blue text-white rounded-lg transition-all hover:bg-blue-light font-mono text-sm font-medium">
+                    <i class="fas fa-copy mr-2"></i>COPY CODE
+                </button>
+                
+                <p class="text-silver-dark text-xs">Others can use this code to join your channel</p>
             </div>
         </div>
     </div>
