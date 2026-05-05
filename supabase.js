@@ -222,7 +222,7 @@ async function switchToChannel(channelId) {
     console.log('✅ Found channel:', channel);
     window.currentChannel = channel;
     localStorage.setItem('geniuschat_current_channel', channel.id);
-    document.getElementById('channelName').textContent = '#' + channel.name;
+    document.getElementById('channelName').textContent = channel.name;
     messageInput.disabled = false;
     sendBtn.disabled = false;
     document.getElementById('inviteBtn').classList.remove('hidden');
@@ -320,7 +320,6 @@ function renderChannels() {
         <div class="flex items-center space-x-2 group">
             <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${window.currentChannel?.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-hashtag ${window.currentChannel?.id === ch.id ? 'text-blue' : 'text-silver-dark'} text-sm"></i>
                     <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
                 </div>
             </button>
@@ -391,7 +390,7 @@ async function deleteChannel(channelId, channelName) {
         // If this was the current channel, switch to another or reset
         if (window.currentChannel?.id === channelId) {
             window.currentChannel = null;
-            document.getElementById('channelName').textContent = '#no-channel';
+            document.getElementById('channelName').textContent = 'no-channel';
             document.getElementById('inviteBtn').classList.add('hidden');
             messageInput.disabled = true;
             sendBtn.disabled = true;
