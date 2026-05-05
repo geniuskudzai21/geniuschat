@@ -14,7 +14,6 @@ const inviteModal = document.getElementById('inviteModal');
 const channelNameInput = document.getElementById('channelNameInput');
 const inviteCodeInput = document.getElementById('inviteCodeInput');
 const createChannelBtn = document.getElementById('createChannelBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
 const cancelModalBtn = document.getElementById('cancelModalBtn');
 const closeInviteBtn = document.getElementById('closeInviteBtn');
 const copyInviteBtn = document.getElementById('copyInviteBtn');
@@ -246,7 +245,6 @@ document.addEventListener('click', (e) => {
 addChannelBtn.addEventListener('click', openChannelModal);
 inviteBtn.addEventListener('click', showInviteModal);
 
-closeModalBtn.addEventListener('click', closeChannelModal);
 cancelModalBtn.addEventListener('click', closeChannelModal);
 channelModal.addEventListener('click', (e) => {
     if (e.target === channelModal) closeChannelModal();
