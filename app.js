@@ -47,7 +47,7 @@ function renderMessages() {
         messagesContainer.innerHTML = `
             <div class="flex flex-col items-center justify-center h-full text-center relative z-10">
                 <div class="w-20 h-20 bg-gradient-to-br from-blue/20 to-blue/10 rounded-3xl flex items-center justify-center mb-8 border-2 border-blue/30 shadow-2xl shadow-blue/20 backdrop-blur">
-                    <i class="fas fa-network-wired text-3xl text-blue"></i>
+                    <img src="logo.png" alt="GENIUSCHAT" class="w-14 h-14 mb-2">
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-4 tracking-wider">NO TRANSMISSIONS</h3>
                 <p class="text-silver-dark text-lg font-medium leading-relaxed">Initiate first transmission...</p>
