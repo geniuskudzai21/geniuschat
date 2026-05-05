@@ -18,6 +18,16 @@ const cancelModalBtn = document.getElementById('cancelModalBtn');
 const closeInviteBtn = document.getElementById('closeInviteBtn');
 const copyInviteBtn = document.getElementById('copyInviteBtn');
 const charCounter = document.getElementById('charCounter');
+const menuBtn = document.getElementById('menuBtn');
+const menuDropdown = document.getElementById('menuDropdown');
+const searchMessagesBtn = document.getElementById('searchMessagesBtn');
+const deleteMessagesBtn = document.getElementById('deleteMessagesBtn');
+const clearChatBtn = document.getElementById('clearChatBtn');
+const searchModal = document.getElementById('searchModal');
+const closeSearchBtn = document.getElementById('closeSearchBtn');
+const searchInput = document.getElementById('searchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const searchResults = document.getElementById('searchResults');
 
 // ======================== HELPER FUNCTIONS ========================
 function showError(message) {
@@ -214,6 +224,159 @@ function closeInviteModal() {
     inviteModal.style.display = 'none';
 }
 
+function toggleMenuDropdown() {
+    menuDropdown.classList.toggle('hidden');
+}
+
+function closeMenuDropdown() {
+    menuDropdown.classList.add('hidden');
+}
+
+function openSearchModal() {
+    searchModal.classList.remove('hidden');
+    searchModal.style.display = 'flex';
+    searchInput.value = '';
+    searchResults.innerHTML = `
+        <div class="text-center text-silver-dark py-8">
+            <i class="fas fa-search text-4xl mb-3 opacity-50"></i>
+            <p>Enter a search term to find messages</p>
+        </div>
+    `;
+    clearSearchBtn.classList.add('hidden');
+    searchInput.focus();
+}
+
+function closeSearchModal() {
+    searchModal.classList.add('hidden');
+    searchModal.style.display = 'none';
+    closeMenuDropdown();
+}
+
+function searchMessages(query) {
+    if (!query.trim()) {
+        searchResults.innerHTML = `
+            <div class="text-center text-silver-dark py-8">
+                <i class="fas fa-search text-4xl mb-3 opacity-50"></i>
+                <p>Enter a search term to find messages</p>
+            </div>
+        `;
+        clearSearchBtn.classList.add('hidden');
+        return;
+    }
+
+    const channelMessages = window.allMessages[window.currentChannel?.id] || [];
+    const searchQuery = query.toLowerCase().trim();
+    
+    const filteredMessages = channelMessages.filter(msg => 
+        msg.text.toLowerCase().includes(searchQuery) ||
+        msg.sender.toLowerCase().includes(searchQuery)
+    );
+
+    if (filteredMessages.length === 0) {
+        searchResults.innerHTML = `
+            <div class="text-center text-silver-dark py-8">
+                <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                <p>No messages found for "${escapeHtml(query)}"</p>
+            </div>
+        `;
+    } else {
+        searchResults.innerHTML = filteredMessages.map(msg => `
+            <div class="p-3 bg-bg-elevated border border-blue/20 rounded-lg hover:bg-blue/5 transition-all cursor-pointer" onclick="scrollToMessage('${msg.id}')">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-mono font-bold text-blue">${escapeHtml(msg.sender)}</span>
+                            <span class="text-xs text-silver-dark font-mono">${formatTime(msg.timestamp)}</span>
+                        </div>
+                        <p class="text-sm text-white break-words font-mono">${highlightSearchTerm(escapeHtml(msg.text), searchQuery)}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    clearSearchBtn.classList.remove('hidden');
+}
+
+function highlightSearchTerm(text, term) {
+    const regex = new RegExp(`(${term})`, 'gi');
+    return text.replace(regex, '<span class="bg-yellow-500/30 text-yellow-300 font-bold">$1</span>');
+}
+
+function scrollToMessage(messageId) {
+    closeSearchModal();
+    // Find and scroll to the message by matching the message text and sender
+    const channelMessages = window.allMessages[window.currentChannel?.id] || [];
+    const targetMessage = channelMessages.find(msg => msg.id === messageId);
+    
+    if (targetMessage) {
+        const messageElements = document.querySelectorAll('.scroll-fade-in');
+        messageElements.forEach(element => {
+            const messageText = element.querySelector('p')?.textContent;
+            const senderElement = element.querySelector('.text-blue');
+            const senderText = senderElement?.textContent;
+            
+            if (messageText === targetMessage.text && senderText === targetMessage.sender) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('ring-2', 'ring-blue', 'ring-opacity-50');
+                setTimeout(() => {
+                    element.classList.remove('ring-2', 'ring-blue', 'ring-opacity-50');
+                }, 2000);
+            }
+        });
+    }
+}
+
+async function deleteAllMessages() {
+    if (!currentChannel) {
+        showError('No channel selected');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete all messages in "#${currentChannel.name}"? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('channel_id', currentChannel.id);
+
+        if (error) {
+            console.error('Error deleting messages:', error);
+            throw error;
+        }
+
+        // Clear local messages
+        window.allMessages[currentChannel.id] = [];
+        renderMessages();
+        closeMenuDropdown();
+        showSuccess('All messages deleted successfully');
+
+    } catch (error) {
+        console.error('Failed to delete messages:', error);
+        showError('Failed to delete messages');
+    }
+}
+
+async function clearChat() {
+    if (!currentChannel) {
+        showError('No channel selected');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to clear the chat in "#${currentChannel.name}"? This will remove all messages from your view but they will remain in the database.`)) {
+        return;
+    }
+
+    // Clear local messages only
+    window.allMessages[currentChannel.id] = [];
+    renderMessages();
+    closeMenuDropdown();
+    showSuccess('Chat cleared successfully');
+}
+
 // ======================== EVENT LISTENERS ========================
 sendBtn.addEventListener('click', sendMessage);
 
@@ -290,5 +453,58 @@ createChannelBtn.addEventListener('click', async () => {
         }
     } else {
         showError('Please enter a channel name or invite code');
+    }
+});
+
+// Menu dropdown event listeners
+menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenuDropdown();
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+        closeMenuDropdown();
+    }
+});
+
+// Menu button event listeners
+searchMessagesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openSearchModal();
+});
+
+deleteMessagesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteAllMessages();
+});
+
+clearChatBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    clearChat();
+});
+
+// Search modal event listeners
+closeSearchBtn.addEventListener('click', closeSearchModal);
+
+searchModal.addEventListener('click', (e) => {
+    if (e.target === searchModal) closeSearchModal();
+});
+
+searchInput.addEventListener('input', (e) => {
+    const query = e.target.value;
+    searchMessages(query);
+});
+
+clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchMessages('');
+    searchInput.focus();
+});
+
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeSearchModal();
     }
 });
