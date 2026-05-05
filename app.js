@@ -78,7 +78,6 @@ function renderMessages() {
         return `
             <div class="flex ${isOwn ? 'justify-end' : 'justify-start'} w-full relative z-10 scroll-fade-in group ${isSelectionMode ? 'selection-mode' : ''} ${isSelected ? 'selected' : ''}" style="animation-delay: ${index * 0.1}s" data-message-id="${msg.id}">
                 <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%] relative">
-                    ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-1">${escapeHtml(msg.sender)}</span>` : ''}
                     ${isSelectionMode ? `
                         <div class="absolute ${isOwn ? '-left-8' : '-right-8'} top-2 z-20">
                             <input type="checkbox" 
@@ -302,8 +301,7 @@ function searchMessages(query) {
     const searchQuery = query.toLowerCase().trim();
     
     const filteredMessages = channelMessages.filter(msg => 
-        msg.text.toLowerCase().includes(searchQuery) ||
-        msg.sender.toLowerCase().includes(searchQuery)
+        msg.text.toLowerCase().includes(searchQuery)
     );
 
     if (filteredMessages.length === 0) {
@@ -319,7 +317,6 @@ function searchMessages(query) {
                 <div class="flex items-start space-x-3">
                     <div class="flex-1">
                         <div class="flex items-center justify-between mb-1">
-                            <span class="text-sm font-mono font-bold text-blue">${escapeHtml(msg.sender)}</span>
                             <span class="text-xs text-silver-dark font-mono">${formatTime(msg.timestamp)}</span>
                         </div>
                         <p class="text-sm text-white break-words font-mono">${highlightSearchTerm(escapeHtml(msg.text), searchQuery)}</p>
@@ -416,7 +413,7 @@ function updateSelectionUI() {
         if (!existingControls) {
             const selectionControls = document.createElement('div');
             selectionControls.id = 'selectionControls';
-            selectionControls.className = 'absolute top-0 left-0 right-0 bg-bg-secondary border-b border-blue/20 backdrop-blur-xl z-40 px-4 py-2 shadow-lg shadow-blue/10';
+            selectionControls.className = 'sticky top-0 left-0 right-0 bg-bg-secondary border-b border-blue/20 backdrop-blur-xl z-40 px-4 py-2 shadow-lg shadow-blue/10';
             selectionControls.innerHTML = `
                 <div class="max-w-7xl mx-auto flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -445,9 +442,6 @@ function updateSelectionUI() {
             // Insert at the beginning of the messages container
             messagesContainer.insertBefore(selectionControls, messagesContainer.firstChild);
             
-            // Add top padding to the messages container content to prevent overlap
-            messagesContainer.style.paddingTop = '50px';
-            
             // Add event listeners
             document.getElementById('selectAllBtn').addEventListener('click', selectAllMessages);
             document.getElementById('cancelSelectionBtn').addEventListener('click', toggleSelectionMode);
@@ -460,11 +454,6 @@ function updateSelectionUI() {
         const selectionControls = document.getElementById('selectionControls');
         if (selectionControls) {
             selectionControls.remove();
-            // Reset messages container padding
-            const messagesContainer = document.getElementById('messagesContainer');
-            if (messagesContainer) {
-                messagesContainer.style.paddingTop = '';
-            }
         }
     }
     

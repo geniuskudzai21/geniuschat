@@ -185,7 +185,7 @@
     </div>
 
     <!-- Join/Create Channel Modal -->
-    <div id="channelModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="channelModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4">
         <div class="bg-bg-secondary border border-blue/20 rounded-2xl max-w-sm w-full p-5 shadow-lg shadow-blue/10 relative">
             <div class="text-center mb-4">
                 <h3 class="text-lg font-bold text-white">Create or Join Channel</h3>
@@ -218,12 +218,12 @@
     </div>
 
     <!-- Invite Code Display Modal -->
-    <div id="inviteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="inviteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-bg-secondary border border-blue/20 rounded-2xl max-w-sm w-full p-5 shadow-lg shadow-blue/10 relative">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-white">Channel Created</h3>
-                <button id="closeInviteBtn" class="text-silver hover:text-white transition-colors p-1">
-                    <i class="fas fa-times"></i>
+                <button id="closeInviteBtn" class="text-silver hover:text-white transition-colors p-1 cursor-pointer">
+                    <i class="fas fa-times pointer-events-none"></i>
                 </button>
             </div>
             
@@ -243,8 +243,8 @@
     </div>
 
     <!-- Search Messages Modal -->
-    <div id="searchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-bg-secondary border border-blue/20 rounded-2xl max-w-2xl w-full p-5 shadow-lg shadow-blue/10 relative max-h-[80vh] flex flex-col">
+    <div id="searchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4">
+        <div class="bg-bg-secondary border border-blue/20 rounded-2xl max-w-lg w-full p-5 shadow-lg shadow-blue/10 relative max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-white">Search Messages</h3>
                 <button id="closeSearchBtn" class="text-silver hover:text-white transition-colors p-1">
