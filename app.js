@@ -15,6 +15,7 @@ const addChannelBtn = document.getElementById('addChannelBtn');
 const inviteBtn = document.getElementById('inviteBtn');
 const channelModal = document.getElementById('channelModal');
 const inviteModal = document.getElementById('inviteModal');
+const usernameInput = document.getElementById('usernameInput');
 const channelNameInput = document.getElementById('channelNameInput');
 const inviteCodeInput = document.getElementById('inviteCodeInput');
 const createChannelBtn = document.getElementById('createChannelBtn');
@@ -595,8 +596,27 @@ copyInviteBtn.addEventListener('click', () => {
 });
 
 createChannelBtn.addEventListener('click', async () => {
+    const username = usernameInput.value.trim();
     const name = channelNameInput.value.trim();
     const inviteCode = inviteCodeInput.value.trim().toUpperCase();
+    
+    // Validate username
+    if (!username || username.length < 2) {
+        showError('Please enter a username (at least 2 characters)');
+        return;
+    }
+    
+    // Set current user
+    window.currentUser = {
+        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        name: username
+    };
+    
+    // Update UI with username
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement) {
+        userNameElement.textContent = username;
+    }
     
     if (inviteCode) {
         // Join existing channel

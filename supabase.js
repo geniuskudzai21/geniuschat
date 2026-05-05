@@ -114,10 +114,17 @@ function openChannelModal() {
     if (channelModal) {
         channelModal.classList.remove('hidden');
         channelModal.style.display = 'flex';
+        const usernameInput = document.getElementById('usernameInput');
         const channelNameInput = document.getElementById('channelNameInput');
         const inviteCodeInput = document.getElementById('inviteCodeInput');
+        if (usernameInput) usernameInput.value = '';
         if (channelNameInput) channelNameInput.value = '';
         if (inviteCodeInput) inviteCodeInput.value = '';
+        
+        // Pre-fill username if already set
+        if (window.currentUser && window.currentUser.name) {
+            usernameInput.value = window.currentUser.name;
+        }
         
         // Disable message input while modal is open
         const messageInput = document.getElementById('messageInput');
@@ -130,10 +137,19 @@ function openChannelModal() {
 async function initializeApp() {
     try {
         console.log('🚀 Initializing app...');
+        
+        // Check if user exists, if not open modal
+        if (!window.currentUser || !window.currentUser.name) {
+            console.log('👤 No user found, opening modal');
+            openChannelModal();
+            return;
+        }
+        
         const userNameElement = document.getElementById('userName');
         if (userNameElement) {
-            userNameElement.textContent = window.currentUser.name || 'Guest User';
+            userNameElement.textContent = window.currentUser.name;
         }
+        
         await loadChannels();
         setupRealtimeSubscriptions();
         
