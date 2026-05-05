@@ -309,6 +309,23 @@ function setupRealtimeSubscriptions() {
                 updateNodeCount();
             }
         )
+        .on('postgres_changes',
+            { event: 'DELETE', schema: 'public', table: 'messages' },
+            (payload) => {
+                const deletedMsg = payload.old;
+                if (window.allMessages[deletedMsg.channel_id]) {
+                    // Remove the deleted message from the local array
+                    window.allMessages[deletedMsg.channel_id] = window.allMessages[deletedMsg.channel_id].filter(
+                        msg => msg.id !== deletedMsg.id
+                    );
+                    // If this is the current channel, re-render the messages
+                    if (deletedMsg.channel_id === window.currentChannel?.id) {
+                        renderMessages();
+                    }
+                    updateNodeCount();
+                }
+            }
+        )
         .subscribe();
 }
 
