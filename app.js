@@ -1,3 +1,7 @@
+// ======================== SELECTION STATE ========================
+let isSelectionMode = false;
+let selectedMessages = new Set();
+
 // ======================== DOM ELEMENTS ========================
 const messagesContainer = document.getElementById('messagesContainer');
 const messageInput = document.getElementById('messageInput');
@@ -68,12 +72,22 @@ function renderMessages() {
     console.log('🎯 Rendering', channelMessages.length, 'messages');
     messagesContainer.innerHTML = channelMessages.map((msg, index) => {
         const isOwn = msg.isOwn;
+        const isSelected = selectedMessages.has(msg.id);
         console.log(`💬 Message ${index}: isOwn=${isOwn}, text="${msg.text}"`);
+        
         return `
-            <div class="flex ${isOwn ? 'justify-end' : 'justify-start'} w-full relative z-10 scroll-fade-in" style="animation-delay: ${index * 0.1}s">
-                <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%]">
+            <div class="flex ${isOwn ? 'justify-end' : 'justify-start'} w-full relative z-10 scroll-fade-in group ${isSelectionMode ? 'selection-mode' : ''} ${isSelected ? 'selected' : ''}" style="animation-delay: ${index * 0.1}s" data-message-id="${msg.id}">
+                <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%] relative">
                     ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-1">${escapeHtml(msg.sender)}</span>` : ''}
-                    <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-4 py-2">
+                    ${isSelectionMode ? `
+                        <div class="absolute ${isOwn ? '-left-8' : '-right-8'} top-2 z-20">
+                            <input type="checkbox" 
+                                   class="message-checkbox w-4 h-4 rounded border-2 border-blue/40 bg-bg-tertiary text-blue focus:ring-blue focus:ring-2 cursor-pointer transition-all hover:border-blue/60" 
+                                   data-message-id="${msg.id}"
+                                   ${isSelected ? 'checked' : ''}>
+                        </div>
+                    ` : ''}
+                    <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-4 py-2 ${isSelectionMode && isSelected ? 'ring-2 ring-blue ring-opacity-60' : ''} transition-all">
                         <p class="text-sm break-words font-mono font-medium leading-relaxed">${escapeHtml(msg.text)}</p>
                     </div>
                     <span class="text-xs text-silver-dark mt-1 ${isOwn ? 'text-right' : 'text-left'} font-mono">${formatTime(msg.timestamp)}</span>
@@ -81,6 +95,26 @@ function renderMessages() {
             </div>
         `;
     }).join('');
+    
+    // Add event listeners to checkboxes
+    if (isSelectionMode) {
+        document.querySelectorAll('.message-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const messageId = e.target.dataset.messageId;
+                if (e.target.checked) {
+                    selectedMessages.add(messageId);
+                } else {
+                    selectedMessages.delete(messageId);
+                }
+                updateDeleteButton();
+                // Update visual feedback
+                const messageElement = e.target.closest('[data-message-id]');
+                if (messageElement) {
+                    messageElement.classList.toggle('selected', e.target.checked);
+                }
+            });
+        });
+    }
     
     console.log('✅ Messages rendered, scrolling to bottom');
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -350,6 +384,7 @@ async function deleteAllMessages() {
 
         // Clear local messages
         window.allMessages[currentChannel.id] = [];
+        selectedMessages.clear();
         renderMessages();
         closeMenuDropdown();
         showSuccess('All messages deleted successfully');
@@ -360,21 +395,171 @@ async function deleteAllMessages() {
     }
 }
 
+function toggleSelectionMode() {
+    isSelectionMode = !isSelectionMode;
+    if (!isSelectionMode) {
+        selectedMessages.clear();
+    }
+    renderMessages();
+    updateSelectionUI();
+}
+
+function updateSelectionUI() {
+    const deleteBtn = document.getElementById('deleteMessagesBtn');
+    const menuDropdown = document.getElementById('menuDropdown');
+    
+    if (isSelectionMode) {
+        // Add professional selection bar below header
+        const messagesContainer = document.getElementById('messagesContainer');
+        const existingControls = document.getElementById('selectionControls');
+        
+        if (!existingControls) {
+            const selectionControls = document.createElement('div');
+            selectionControls.id = 'selectionControls';
+            selectionControls.className = 'absolute top-0 left-0 right-0 bg-bg-secondary border-b border-blue/20 backdrop-blur-xl z-40 px-4 py-2 shadow-lg shadow-blue/10';
+            selectionControls.innerHTML = `
+                <div class="max-w-7xl mx-auto flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-blue rounded-full animate-pulse"></div>
+                            <span class="text-xs text-blue font-mono">SELECTING</span>
+                        </div>
+                        <span class="text-xs text-silver font-mono">
+                            <span id="selectedCount" class="text-blue font-bold">0</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="selectAllBtn" class="w-8 h-8 text-sm bg-blue/10 text-blue hover:bg-blue/20 border border-blue/30 rounded-lg transition-all font-mono flex items-center justify-center">
+                            <i class="fas fa-check-square text-xs"></i>
+                        </button>
+                        <button id="cancelSelectionBtn" class="w-8 h-8 text-sm bg-silver/10 text-silver hover:bg-silver/20 border border-silver/30 rounded-lg transition-all font-mono flex items-center justify-center">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                        <button id="deleteSelectedBtn" class="w-8 h-8 text-sm bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-all font-mono flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Insert at the beginning of the messages container
+            messagesContainer.insertBefore(selectionControls, messagesContainer.firstChild);
+            
+            // Add top padding to the messages container content to prevent overlap
+            messagesContainer.style.paddingTop = '50px';
+            
+            // Add event listeners
+            document.getElementById('selectAllBtn').addEventListener('click', selectAllMessages);
+            document.getElementById('cancelSelectionBtn').addEventListener('click', toggleSelectionMode);
+            document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedMessages);
+        }
+        
+        updateDeleteButton();
+    } else {
+        // Remove selection controls
+        const selectionControls = document.getElementById('selectionControls');
+        if (selectionControls) {
+            selectionControls.remove();
+            // Reset messages container padding
+            const messagesContainer = document.getElementById('messagesContainer');
+            if (messagesContainer) {
+                messagesContainer.style.paddingTop = '';
+            }
+        }
+    }
+    
+    closeMenuDropdown();
+}
+
+function selectAllMessages() {
+    const channelMessages = window.allMessages[window.currentChannel?.id] || [];
+    selectedMessages.clear();
+    channelMessages.forEach(msg => selectedMessages.add(msg.id));
+    renderMessages();
+    updateDeleteButton();
+}
+
+function updateDeleteButton() {
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (deleteBtn && selectedCount) {
+        selectedCount.textContent = selectedMessages.size;
+        deleteBtn.disabled = selectedMessages.size === 0;
+    }
+}
+
+async function deleteSelectedMessages() {
+    if (selectedMessages.size === 0) {
+        showError('No messages selected');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${selectedMessages.size} selected message(s)? This action cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        // Delete from database
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .in('id', Array.from(selectedMessages));
+        
+        if (error) {
+            console.error('Error deleting selected messages:', error);
+            throw error;
+        }
+        
+        // Update local messages
+        const channelMessages = window.allMessages[window.currentChannel?.id] || [];
+        window.allMessages[window.currentChannel?.id] = channelMessages.filter(msg => !selectedMessages.has(msg.id));
+        
+        selectedMessages.clear();
+        isSelectionMode = false;
+        renderMessages();
+        updateSelectionUI();
+        showSuccess('Selected messages deleted successfully');
+        
+    } catch (error) {
+        console.error('Failed to delete selected messages:', error);
+        showError('Failed to delete selected messages');
+    }
+}
+
 async function clearChat() {
     if (!currentChannel) {
         showError('No channel selected');
         return;
     }
 
-    if (!confirm(`Are you sure you want to clear the chat in "#${currentChannel.name}"? This will remove all messages from your view but they will remain in the database.`)) {
+    if (!confirm(`Are you sure you want to clear the chat in "#${currentChannel.name}"? This will permanently delete all messages in this channel.`)) {
         return;
     }
 
-    // Clear local messages only
-    window.allMessages[currentChannel.id] = [];
-    renderMessages();
-    closeMenuDropdown();
-    showSuccess('Chat cleared successfully');
+    try {
+        // Delete all messages from database
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('channel_id', currentChannel.id);
+
+        if (error) {
+            console.error('Error clearing chat:', error);
+            throw error;
+        }
+
+        // Clear local messages
+        window.allMessages[currentChannel.id] = [];
+        selectedMessages.clear();
+        renderMessages();
+        closeMenuDropdown();
+        showSuccess('Chat cleared successfully');
+
+    } catch (error) {
+        console.error('Failed to clear chat:', error);
+        showError('Failed to clear chat');
+    }
 }
 
 // ======================== EVENT LISTENERS ========================
@@ -469,6 +654,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
+
 // Menu button event listeners
 searchMessagesBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -477,8 +663,9 @@ searchMessagesBtn.addEventListener('click', (e) => {
 
 deleteMessagesBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    deleteAllMessages();
+    toggleSelectionMode();
 });
+
 
 clearChatBtn.addEventListener('click', (e) => {
     e.stopPropagation();
