@@ -62,19 +62,12 @@ function renderMessages() {
         console.log(`💬 Message ${index}: isOwn=${isOwn}, text="${msg.text}"`);
         return `
             <div class="flex ${isOwn ? 'justify-end' : 'justify-start'} w-full relative z-10 scroll-fade-in" style="animation-delay: ${index * 0.1}s">
-                <div class="flex ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 max-w-[70%]">
-                    ${!isOwn ? `
-                        <div class="w-10 h-10 bg-gradient-to-br from-silver to-silver-dark rounded-2xl flex items-center justify-center text-darkgrey font-bold text-sm border-2 border-blue/20 flex-shrink-0 shadow-lg">
-                            ${msg.avatar}
-                        </div>
-                    ` : ''}
-                    <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'}">
-                        ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-1">${escapeHtml(msg.sender)}</span>` : ''}
-                        <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-4 py-2">
-                            <p class="text-sm break-words font-mono font-medium leading-relaxed">${escapeHtml(msg.text)}</p>
-                        </div>
-                        <span class="text-xs text-silver-dark mt-1 ${isOwn ? 'text-right' : 'text-left'} font-mono">${formatTime(msg.timestamp)}</span>
+                <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%]">
+                    ${!isOwn ? `<span class="text-sm font-mono font-bold text-blue mb-1">${escapeHtml(msg.sender)}</span>` : ''}
+                    <div class="${isOwn ? 'bg-gradient-to-r from-blue to-blue-dark text-white rounded-2xl rounded-tr-none shadow-lg shadow-blue/20 border border-blue/30' : 'bg-gradient-to-br from-darkgrey-light to-darkgrey text-white rounded-2xl rounded-tl-none border-2 border-blue/20 backdrop-blur'} px-4 py-2">
+                        <p class="text-sm break-words font-mono font-medium leading-relaxed">${escapeHtml(msg.text)}</p>
                     </div>
+                    <span class="text-xs text-silver-dark mt-1 ${isOwn ? 'text-right' : 'text-left'} font-mono">${formatTime(msg.timestamp)}</span>
                 </div>
             </div>
         `;
@@ -92,18 +85,31 @@ function escapeHtml(text) {
 
 function renderChannels() {
     const channelsList = document.getElementById('channelsList');
-    channelsList.innerHTML = channels.map(ch => `
-        <div class="flex items-center space-x-2 group">
-            <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${currentChannel?.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
-                <div class="flex items-center space-x-3">
-                    <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
-                </div>
-            </button>
-            <button class="delete-channel-btn p-2 rounded-xl text-silver-dark hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}">
-                <i class="fas fa-trash text-sm"></i>
-            </button>
-        </div>
-    `).join('');
+    channelsList.innerHTML = channels.map(ch => {
+        const isActive = currentChannel?.id === ch.id;
+        return `
+            <div class="group relative">
+                <button class="channel-item w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
+                    isActive 
+                        ? 'bg-gradient-to-r from-blue/20 to-blue/10 text-blue border border-blue/30 shadow-lg shadow-blue/10' 
+                        : 'hover:bg-bg-elevated/50 text-silver/80 hover:text-white border border-transparent hover:border-blue/20'
+                }" data-channel-id="${ch.id}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 ${isActive ? 'bg-blue' : 'bg-silver-dark'} rounded-full transition-colors"></div>
+                            <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${isActive ? '<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>' : ''}
+                            <button class="delete-channel-btn p-1.5 rounded-lg text-silver-dark/60 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        `;
+    }).join('');
     
     document.querySelectorAll('.channel-item').forEach(btn => {
         btn.addEventListener('click', () => {
