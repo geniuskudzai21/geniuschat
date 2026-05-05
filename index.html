@@ -41,42 +41,51 @@
     <div class="flex h-screen overflow-hidden bg-bg-primary">
         
         <!-- SIDEBAR -->
-        <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-80 bg-bg-secondary border-b border-blue/20 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 shadow-2xl shadow-blue/10">
+        <aside class="sidebar-mobile fixed inset-y-0 left-0 z-30 w-80 bg-gradient-to-b from-bg-secondary to-bg-tertiary border-r border-blue/10 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 shadow-2xl shadow-black/20">
             <div class="flex flex-col h-full">
-                <div class="p-6 border-b border-blue/20 bg-bg-secondary relative overflow-hidden">
-                    <div class="absolute inset-0 bg-blue/5 opacity-50"></div>
+                <!-- Header -->
+                <div class="p-6 border-b border-blue/10 bg-gradient-to-r from-blue/5 to-transparent relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue/10 via-transparent to-purple/5"></div>
                     <div class="relative z-10">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <img src="logo.png" alt="GENIUSCHAT" class="w-10 h-10 rounded-lg">
+                            <div class="flex items-center space-x-4">
+                                <div class="relative">
+                                    <img src="logo.png" alt="GENIUSCHAT" class="w-12 h-12 rounded-xl shadow-lg shadow-blue/20 border border-blue/30">
+                                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-bg-secondary"></div>
+                                </div>
                                 <div>
-                                    <h1 class="text-2xl font-bold text-white tracking-wider">GENIUSCHAT</h1>
-                                    <p class="text-xs text-silver-dark mt-1" id="userName"></p>
+                                    <h1 class="text-2xl font-bold text-white tracking-wider bg-gradient-to-r from-blue to-blue-light bg-clip-text text-transparent">GENIUSCHAT</h1>
+                                    <p class="text-xs text-silver-dark/80 mt-1 font-medium" id="userName">Online</p>
                                 </div>
                             </div>
-                            <button id="closeSidebarBtn" class="md:hidden text-silver hover:text-blue transition-colors">
-                                <i class="fas fa-times text-xl"></i>
+                            <button id="closeSidebarBtn" class="md:hidden text-silver hover:text-blue transition-all hover:scale-110 p-2">
+                                <i class="fas fa-times text-lg"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-5 space-y-2 bg-bg-secondary">
+                <!-- Channels Section -->
+                <div class="flex-1 overflow-y-auto p-6 space-y-4">
                     <div class="flex items-center justify-between mb-6">
-                        <h4 class="text-xs font-bold text-silver-dark uppercase tracking-widest">Channels</h4>
-                        <button id="addChannelBtn" class="text-blue hover:text-blue-light transition-colors">
-                            <i class="fas fa-plus text-sm"></i>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-blue rounded-full"></div>
+                            <h4 class="text-sm font-bold text-white uppercase tracking-wider">CHANNELS</h4>
+                        </div>
+                        <button id="addChannelBtn" class="w-8 h-8 bg-blue/20 hover:bg-blue/30 text-blue hover:text-blue-light rounded-lg transition-all hover:scale-110 flex items-center justify-center">
+                            <i class="fas fa-plus text-xs"></i>
                         </button>
                     </div>
+                    
                     <div id="channelsList" class="space-y-2"></div>
                 </div>
 
                 <!-- Footer -->
-                <div class="px-5 py-3 border-t border-blue/10 bg-bg-secondary">
-                    <div class="flex items-center justify-between text-xs text-silver-dark/70">
+                <div class="p-4 border-t border-blue/10 bg-bg-tertiary/50">
+                    <div class="flex items-center justify-between text-xs text-silver-dark/60">
                         <span>Secure Messaging</span>
                         <div class="flex items-center space-x-1">
-                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                             <span>Connected</span>
                         </div>
                     </div>
