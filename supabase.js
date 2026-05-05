@@ -1,4 +1,3 @@
-// ======================== SUPABASE OPERATIONS ========================
 
 function showError(message) {
     alert(`ERROR: ${message}`);
