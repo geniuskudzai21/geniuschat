@@ -85,14 +85,17 @@ function escapeHtml(text) {
 function renderChannels() {
     const channelsList = document.getElementById('channelsList');
     channelsList.innerHTML = channels.map(ch => `
-        <div class="flex items-center space-x-2 group">
-            <button class="channel-item flex-1 text-left px-4 py-3 rounded-2xl transition-all ${currentChannel?.id === ch.id ? 'bg-blue/20 text-blue font-bold border-2 border-blue/30 shadow-lg shadow-blue/20' : 'hover:bg-darkgrey-light/30 text-silver border-2 border-transparent hover:border-blue/20'}" data-channel-id="${ch.id}">
-                <div class="flex items-center space-x-3">
-                    <span class="font-mono text-sm font-medium">${escapeHtml(ch.name)}</span>
-                </div>
+        <div class="flex items-center group">
+            <button class="channel-item flex-1 text-left px-4 py-3 rounded-lg transition-all duration-200 ${currentChannel?.id === ch.id ? 'bg-gradient-to-r from-blue/10 to-blue/5 text-blue font-medium border-l-2 border-blue shadow-sm' : 'bg-darkgrey-light/20 text-white border-l-2 border-blue/30 hover:bg-darkgrey-light/30'}" data-channel-id="${ch.id}">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 rounded-full ${currentChannel?.id === ch.id ? 'bg-lime-500' : 'bg-silver-dark/40'} transition-colors duration-200"></div>
+                        <span class="font-mono text-sm font-medium tracking-wide">${escapeHtml(ch.name)}</span>
+                    </div>
+                                    </div>
             </button>
-            <button class="delete-channel-btn p-2 rounded-xl text-silver-dark hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}">
-                <i class="fas fa-trash text-sm"></i>
+            <button class="delete-channel-btn p-2 rounded-lg text-silver-dark/60 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200 opacity-0 group-hover:opacity-100 ml-2" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}">
+                <i class="fas fa-trash-alt text-xs"></i>
             </button>
         </div>
     `).join('');
