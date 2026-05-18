@@ -35,14 +35,6 @@ const clearSearchBtn = document.getElementById('clearSearchBtn');
 const searchResults = document.getElementById('searchResults');
 
 // ======================== HELPER FUNCTIONS ========================
-function showError(message) {
-    alert(`ERROR: ${message}`);
-}
-
-function showSuccess(message) {
-    alert(`SUCCESS: ${message}`);
-}
-
 function renderMessages() {
     console.log('🎨 Rendering messages...');
     console.log('📱 Current channel:', window.currentChannel?.id);
@@ -120,108 +112,6 @@ function renderMessages() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function renderChannels() {
-    const channelsList = document.getElementById('channelsList');
-    channelsList.innerHTML = channels.map(ch => `
-        <div class="flex items-center group">
-            <button class="channel-item flex-1 text-left px-4 py-3 rounded-lg transition-all duration-200 ${currentChannel?.id === ch.id ? 'bg-gradient-to-r from-blue/10 to-blue/5 text-blue font-medium border-l-2 border-blue shadow-sm' : 'bg-darkgrey-light/20 text-white border-l-2 border-blue/30 hover:bg-darkgrey-light/30'}" data-channel-id="${ch.id}">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 rounded-full ${currentChannel?.id === ch.id ? 'bg-lime-500' : 'bg-silver-dark/40'} transition-colors duration-200"></div>
-                        <span class="font-mono text-sm font-medium tracking-wide">${escapeHtml(ch.name)}</span>
-                    </div>
-                                    </div>
-            </button>
-            <button class="delete-channel-btn p-2 rounded-lg text-silver-dark/60 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200 opacity-0 group-hover:opacity-100 ml-2" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}">
-                <i class="fas fa-trash-alt text-xs"></i>
-            </button>
-        </div>
-    `).join('');
-    
-    document.querySelectorAll('.channel-item').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const channelId = btn.dataset.channelId;
-            switchToChannel(channelId);
-            if (window.innerWidth < 768) {
-                body.classList.remove('sidebar-open');
-            }
-        });
-    });
-    
-    document.querySelectorAll('.delete-channel-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const channelId = btn.dataset.channelId;
-            const channelName = btn.dataset.channelName;
-            deleteChannel(channelId, channelName);
-        });
-    });
-}
-
-async function deleteChannel(channelId, channelName) {
-    if (!confirm(`Are you sure you want to delete channel "#${channelName}"? This will also delete all messages in this channel.`)) {
-        return;
-    }
-    
-    try {
-        // Delete all messages in the channel first
-        const { error: messagesError } = await supabase
-            .from('messages')
-            .delete()
-            .eq('channel_id', channelId);
-        
-        if (messagesError) {
-            console.error('Error deleting messages:', messagesError);
-            throw messagesError;
-        }
-        
-        // Delete the channel
-        const { error: channelError } = await supabase
-            .from('channels')
-            .delete()
-            .eq('id', channelId);
-        
-        if (channelError) {
-            console.error('Error deleting channel:', channelError);
-            throw channelError;
-        }
-        
-        // Remove from local state
-        channels = channels.filter(c => c.id !== channelId);
-        delete window.allMessages[channelId];
-        
-        // If this was the current channel, switch to another or reset
-        if (currentChannel?.id === channelId) {
-            currentChannel = null;
-            document.getElementById('channelName').textContent = 'no-channel';
-            document.getElementById('inviteBtn').classList.add('hidden');
-            messageInput.disabled = true;
-            sendBtn.disabled = true;
-            renderMessages();
-            
-            // If there are other channels, switch to the first one
-            if (channels.length > 0) {
-                await switchToChannel(channels[0].id);
-            } else {
-                openChannelModal();
-            }
-        }
-        
-        renderChannels();
-        showSuccess(`Channel "#${channelName}" deleted successfully`);
-        
-    } catch (error) {
-        console.error('Failed to delete channel:', error);
-        showError('Failed to delete channel');
-    }
-}
-
 function formatTime(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
@@ -230,15 +120,6 @@ function updateCharCount() {
     const length = messageInput.value.length;
     charCounter.textContent = `${length}/500`;
     charCounter.classList.toggle('text-blue', length >= 450);
-}
-
-function openChannelModal() {
-    channelModal.classList.remove('hidden');
-    channelModal.style.display = 'flex';
-    channelNameInput.value = '';
-    inviteCodeInput.value = '';
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
 }
 
 function closeChannelModal() {
@@ -606,11 +487,18 @@ createChannelBtn.addEventListener('click', async () => {
         return;
     }
     
-    // Set current user
-    window.currentUser = {
-        id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        name: username
-    };
+    // Preserve existing user ID if available, only update name
+    if (window.currentUser && window.currentUser.id) {
+        window.currentUser.name = username;
+    } else {
+        window.currentUser = {
+            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            name: username
+        };
+    }
+    
+    // Save user to localStorage for persistence across reloads
+    localStorage.setItem('geniuschat_user', JSON.stringify(window.currentUser));
     
     // Update UI with username
     const userNameElement = document.getElementById('userName');
@@ -618,24 +506,28 @@ createChannelBtn.addEventListener('click', async () => {
         userNameElement.textContent = username;
     }
     
-    if (inviteCode) {
-        // Join existing channel
-        const channel = await joinChannelByCode(inviteCode);
-        if (channel) {
-            closeChannelModal();
-            await switchToChannel(channel.id);
-            showSuccess(`Joined ${channel.name}!`);
+    try {
+        if (inviteCode) {
+            // Join existing channel
+            const channel = await joinChannelByCode(inviteCode);
+            if (channel) {
+                closeChannelModal();
+                await switchToChannel(channel.id);
+                showSuccess(`Joined ${channel.name}!`);
+            }
+        } else if (name) {
+            // Create new channel
+            const channel = await createChannel(name);
+            if (channel) {
+                closeChannelModal();
+                await switchToChannel(channel.id);
+                showInviteModal();
+            }
+        } else {
+            showError('Please enter a channel name or invite code');
         }
-    } else if (name) {
-        // Create new channel
-        const channel = await createChannel(name);
-        if (channel) {
-            closeChannelModal();
-            await switchToChannel(channel.id);
-            showInviteModal();
-        }
-    } else {
-        showError('Please enter a channel name or invite code');
+    } catch (error) {
+        console.error('Error creating/joining channel:', error);
     }
 });
 
